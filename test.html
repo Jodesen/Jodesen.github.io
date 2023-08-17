@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>口算练习题生成器</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin: 0;
+      padding: 20px;
+    }
+
+    h1 {
+      margin-bottom: 20px;
+    }
+
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      background-color: #3498db;
+      color: white;
+      border: none;
+      cursor: pointer;
+      margin-bottom: 10px;
+    }
+
+    #problemTable {
+      display: none;
+      margin-top: 20px;
+      border-collapse: collapse;
+      width: 100%;
+    }
+
+    #problemTable th,
+    #problemTable td {
+      border: 1px solid #ccc;
+      padding: 10px;
+    }
+
+    input[type="number"] {
+      padding: 5px;
+      font-size: 16px;
+      width: 60px;
+      text-align: center;
+      border: 1px solid #ccc;
+    }
+  </style>
+  <script>
+    var startTime;
+    var correctAnswersCount = 0;
+    var timerIntervalId;
+    var practiceCount = 0;
+
+
+    function generateProblems() {
+      clearInterval(timerIntervalId); // 清除计时器
+      clearCorrectAnswers(); // 清除显示答案的内容
+      practiceCount++; // 增加练习次数
+
+      startTime = Date.now(); // 记录开始时间
+      var problemsTable = document.getElementById("problemTable");
+      problemsTable.style.display = "block"; // 显示表格
+      problemsTable.innerHTML = ""; // 清空之前的内容
+
+      var problemCounter = 1;
+      for (var row = 0; row < 4; row++) {
+        var newRow = problemsTable.insertRow();
+        for (var col = 0; col < 10; col++) {
+          var num1 = Math.floor(Math.random() * 80) + 11; // 生成11到90之间的两位数
+          num1 = Math.floor(num1 / 10) * 10 + Math.floor(Math.random() * 9) + 1; // 不是整十数
+          var num2 = Math.floor(Math.random() * 6) + 3; // 生成1到9之间的个位数
+          var result = num1 * num2;
+
+          var cell = newRow.insertCell();
+          cell.innerHTML = num1 + " × " + num2 + " = " +
+            '<input type="number" data-answer="' + result + '" oninput="checkAnswer(event)" class="input">';
+
+          problemCounter++;
+        }
+      }
+    }
+
+    function checkAnswer(event) {
+      var input = event.target;
+      input.style.backgroundColor = "";
+    }
+
+    function verifyAnswers() {
+      clearInterval(timerIntervalId); // 停止计时器
+
+      var inputs = document.querySelectorAll('.input[data-answer]');
+      var endTime = Date.now(); // 记录结束时间
+      var totalTime = (endTime - startTime) / 1000; // 计算用时（单位：秒）
+
+      var correctCount = 0;
+      var incorrectProblems = []; // 存储错误的问题和正确答案
+
+      for (var i = 0; i < inputs.length; i++) {
+        var input = inputs[i];
+        var userAnswer = parseInt(input.value);
+        var correctAnswer = parseInt(input.dataset.answer);
+
+        if (userAnswer === correctAnswer) {
+          correctCount++;
+        } else {
+          input.style.backgroundColor = "pink"; // 标记错误答案为粉红色
+
+          var problem = input.parentElement.innerText; // 获取问题文本
+          incorrectProblems.push({ problem: problem, correctAnswer: correctAnswer });
+        }
+
+        input.disabled = true; // 禁用输入框
+      }
+
+      var accuracy = (correctCount / inputs.length) * 100; // 计算正确率（百分比）
+
+      updateHistoryRecords(practiceCount, totalTime.toFixed(1), accuracy.toFixed(2)); // 更新历史练习记录
+
+      // 在页面下方创建div来显示正确答案
+      var correctAnswersDiv = document.getElementById("correctAnswers");
+      correctAnswersDiv.innerHTML = ""; // 清空之前的内容
+      for (var j = 0; j < incorrectProblems.length; j++) {
+        var problemDiv = document.createElement("div");
+        problemDiv.textContent = incorrectProblems[j].problem + " 正确答案：" + incorrectProblems[j].correctAnswer;
+        correctAnswersDiv.appendChild(problemDiv);
+      }
+      correctAnswersDiv.style.display = "block"; // 显示正确答案
+
+      // 显示用时和正确率
+      var infoDiv = document.createElement("div");
+      infoDiv.textContent = "用时：" + totalTime.toFixed(1) + "秒，正确率：" + accuracy.toFixed(2) + "%";
+      correctAnswersDiv.appendChild(infoDiv);
+    }
+
+    //清空div内容
+    function clearCorrectAnswers() {
+      var correctAnswersDiv = document.getElementById("correctAnswers");
+      correctAnswersDiv.innerHTML = ""; // 清空内容
+      correctAnswersDiv.style.display = "none"; // 隐藏
+    }
+
+    //在 <script> 标签中，添加一个用于更新历史练习记录的函数：
+    function updateHistoryRecords(practiceNumber, time, accuracy) {
+      var historyDiv = document.getElementById("historyRecords");
+
+      var recordDiv = document.createElement("div");
+      recordDiv.textContent = "第 " + practiceNumber + " 次练习 - 练习时间：" + time + "秒，练习正确率：" + accuracy + "%";
+
+      historyDiv.appendChild(recordDiv);
+    }
+
+
+
+
+
+
+  </script>
+</head>
+<body>
+  <h1>口算练习题生成器</h1>
+  <button onclick="generateProblems()">生成题目</button>
+  <table id="problemTable">
+    <thead>
+      <tr>
+        <th>题目</th>
+        <th>题目</th>
+        <th>题目</th>
+        <th>题目</th>
+        <th>题目</th>
+        <th>题目</th>
+        <th>题目</th>
+        <th>题目</th>
+        <th>题目</th>
+        <th>题目</th>
+      </tr>
+    </thead>
+  </table>
+  <br>
+  <button onclick="verifyAnswers()">验证答案</button>
+  <div id="correctAnswers" style="display: none;"></div>
+  <div id="historyRecords"></div>
+
+</body>
+</html>
