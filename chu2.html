@@ -1,77 +1,212 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>速算</title>
-<style>
-  body {
-    font-family: Arial, sans-serif;
-    background-color: #f0f0f0;
-    margin: 0;
-    padding: 0;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
-  }
+  <title>多位数除三位数</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin: 0;
+      padding: 20px;
+    }
 
-  .container {
-    text-align: center;
-  }
+    h1 {
+      margin-bottom: 20px;
+    }
 
-  .button-row {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      background-color: #3498db;
+      color: white;
+      border: none;
+      cursor: pointer;
+      margin-bottom: 10px;
+    }
 
-  .button-container {
-    margin: 10px;
-    display: flex;
-    flex-direction: column;
-    align-items: stretch; /* Make buttons have equal width */
-  }
+    #problemTableWrapper {
+      display: flex;
+      justify-content: center;
+    }
 
-  .button {
-    display: inline-block;
-    padding: 10px 20px;
-    margin: 5px 0;
-    font-size: 18px;
-    background-color: #3498db;
-    color: #ffffff;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.3s, transform 0.2s;
-    text-decoration: none; /* Remove underline */
-    text-align: center; /* Center button text */
-  }
+    #problemTable {
+      display: none;
+      border-collapse: collapse;
+    }
 
-  .button:hover {
-    background-color: #2980b9;
-    transform: scale(1.05);
-  }
-</style>
+    #problemTable th,
+    #problemTable td {
+      border: 1px solid #ccc;
+      padding: 10px;
+      text-align: center; /* 居中对齐表格内容 */
+    }
+
+    input[type="number"] {
+      padding: 5px;
+      font-size: 16px;
+      width: 60px;
+      text-align: center;
+      border: 1px solid #ccc;
+    }
+    #instructions {
+      margin-top: 20px;
+      font-size: 16px;
+      font-weight: bold;
+    }
+
+    #problemTableContainer {
+      display: flex;
+      justify-content: center;
+    }
+  </style>
+  <script>
+    var startTime;
+    var correctAnswersCount = 0;
+    var timerIntervalId;
+    var practiceCount = 0;
+
+
+    function generateProblems() {
+    clearInterval(timerIntervalId); // 清除计时器
+    clearCorrectAnswers(); // 清除显示答案的内容
+    practiceCount++; // 增加练习次数
+
+    startTime = Date.now(); // 记录开始时间
+    var problemsTable = document.getElementById("problemTable");
+    problemsTable.style.display = "block"; // 显示表格
+    problemsTable.innerHTML = ""; // 清空之前的内容
+
+    for (var row = 0; row < 4; row++) { // 生成四行题目
+        var newRow = problemsTable.insertRow();
+        newRow.style.textAlign = "center"; // 将每行内容居中对齐
+        for (var col = 0; col < 5; col++) { // 每行五个题目
+            var num1 = Math.floor(Math.random() * 90000) + 10000; // 生成10000到99999之间的五位数
+            var num2 = Math.floor(Math.random() * 900) + 100; // 生成10到99之间的两位数
+            var result = Math.floor(num1 / num2); // 计算除法结果;
+            var firstTwoDigits = result.toString().substr(0, 2); // 获取答案的前两位数字
+
+            var cell = newRow.insertCell();
+            cell.style.textAlign = "center"; // 将单元格内容居中对齐
+            cell.innerHTML = num1 + " ÷ " + num2 + " = " +
+                '<input type="number" data-answer="' + firstTwoDigits + '" class="input">';
+        }
+    }
+}
+
+function verifyAnswers() {
+    clearInterval(timerIntervalId); // 停止计时器
+
+    var inputs = document.querySelectorAll('.input[data-answer]');
+    var endTime = Date.now(); // 记录结束时间
+    var totalTime = (endTime - startTime) / 1000; // 计算用时（单位：秒）
+
+    var correctCount = 0;
+    var incorrectProblems = []; // 存储错误的问题和正确答案
+
+    for (var i = 0; i < inputs.length; i++) {
+        var input = inputs[i];
+        var userAnswer = input.value.substr(0, 2); // 获取用户输入的前两位数字
+        var correctAnswer = input.dataset.answer;
+
+        if (userAnswer === correctAnswer) {
+            input.style.backgroundColor = "lightgreen"; // 设置正确答案的背景颜色
+            correctCount++;
+        } else {
+            input.style.backgroundColor = "pink"; // 设置错误答案的背景颜色
+
+            var problem = input.parentElement.innerText; // 获取问题文本
+            incorrectProblems.push({ problem: problem, correctAnswer: correctAnswer });
+        }
+
+        input.disabled = true; // 禁用输入框
+    }
+
+    var accuracy = (correctCount / inputs.length) * 100; // 计算正确率（百分比）
+
+    // 在页面下方创建div来显示正确答案和错误题目的答案
+    var correctAnswersDiv = document.getElementById("correctAnswers");
+    correctAnswersDiv.innerHTML = ""; // 清空之前的内容
+    correctAnswersDiv.style.display = "block"; // 显示正确答案
+
+    var infoDiv = document.createElement("div");
+    infoDiv.textContent = "用时：" + totalTime.toFixed(1) + "秒，正确率：" + accuracy.toFixed(2) + "%";
+    correctAnswersDiv.appendChild(infoDiv);
+
+    if (incorrectProblems.length > 0) {
+        var incorrectDiv = document.createElement("div");
+        incorrectDiv.textContent = "以下为错误的问题和正确答案：";
+        correctAnswersDiv.appendChild(incorrectDiv);
+
+        for (var j = 0; j < incorrectProblems.length; j++) {
+            var problemDiv = document.createElement("div");
+            problemDiv.textContent = incorrectProblems[j].problem + " 正确答案：" + incorrectProblems[j].correctAnswer;
+            correctAnswersDiv.appendChild(problemDiv);
+        }
+    }
+
+
+      updateHistoryRecords(practiceCount, totalTime.toFixed(1), accuracy.toFixed(2)); // 更新历史练习记录
+
+      // 在页面下方创建div来显示正确答案
+      var correctAnswersDiv = document.getElementById("correctAnswers");
+      correctAnswersDiv.innerHTML = ""; // 清空之前的内容
+      for (var j = 0; j < incorrectProblems.length; j++) {
+        var problemDiv = document.createElement("div");
+        problemDiv.textContent = incorrectProblems[j].problem + " 正确答案：" + incorrectProblems[j].correctAnswer;
+        correctAnswersDiv.appendChild(problemDiv);
+      }
+      correctAnswersDiv.style.display = "block"; // 显示正确答案
+
+      // 显示用时和正确率
+      var infoDiv = document.createElement("div");
+      infoDiv.textContent = "用时：" + totalTime.toFixed(1) + "秒，正确率：" + accuracy.toFixed(2) + "%";
+      correctAnswersDiv.appendChild(infoDiv);
+    }
+
+    //清空div内容
+    function clearCorrectAnswers() {
+      var correctAnswersDiv = document.getElementById("correctAnswers");
+      correctAnswersDiv.innerHTML = ""; // 清空内容
+      correctAnswersDiv.style.display = "none"; // 隐藏
+    }
+
+    //在 <script> 标签中，添加一个用于更新历史练习记录的函数：
+    function updateHistoryRecords(practiceNumber, time, accuracy) {
+      var historyDiv = document.getElementById("historyRecords");
+
+      var recordDiv = document.createElement("div");
+      recordDiv.textContent = "第 " + practiceNumber + " 次练习 - 练习时间：" + time + "秒，练习正确率：" + accuracy + "%";
+
+      historyDiv.appendChild(recordDiv);
+    }
+
+
+
+
+
+
+  </script>
 </head>
 <body>
-<div class="container">
-  <h1>Welcome to My Website！</h1>
-  <div class="button-row">
-    <div class="button-container">
-      <a href="jia.html" class="button">两位数乘一位数</a>
-      <a href="chu.html" class="button">多位数除两位数</a>
-    </div>
-    <div class="button-container">
-      <a href="jiajian2.html" class="button">三位数加减</a>
-
-      <a href="chu2.html" class="button">多位数除三位数</a>
-    </div>
-    <div class="button-container">
-      <a href="jiajian.html" class="button">两位数加减</a>
-      <a href="shizhan.html" class="button">实战</a>
-    </div>
+  <h1>多位数除三位数练习题生成</h1>
+  <button onclick="generateProblems()">生成题目</button>
+  <div id="problemTableContainer">
+    <table id="problemTable">
+      <thead>
+        <tr>
+          <th>题目</th>
+          <th>题目</th>
+          <th>题目</th>
+          <th>题目</th>
+          <th>题目</th>
+        </tr>
+      </thead>
+    </table>
   </div>
-</div>
+  <br>
+  <button onclick="verifyAnswers()">验证答案</button>
+  <p id="instructions">【备注】：多位数 ÷ 三位数，只需要商前两位，无需四舍五入（例如：85313 ÷ 411 商 21），动笔。（20组，240s）</p>
+  <div id="correctAnswers" style="display: none;"></div>
+  <div id="historyRecords"></div>
 </body>
 </html>
