@@ -91,10 +91,10 @@
         incorrectAnswer = Math.max(incorrectAnswer, 0); // 确保选项不会小于0
 
         var options = [
-          { value: "A", content: correctAnswer.toFixed(2) },
-          { value: "B", content: incorrectAnswer.toFixed(2) },
-          { value: "C", content: (correctAnswer + (errorMargin / 2)).toFixed(2) },
-          { value: "D", content: (correctAnswer - (errorMargin / 2)).toFixed(2) }
+          { content: correctAnswer.toFixed(2) },
+          { content: incorrectAnswer.toFixed(2) },
+          { content: (correctAnswer + (errorMargin / 2)).toFixed(2) },
+          { content: (correctAnswer - (errorMargin / 2)).toFixed(2) }
         ];
 
         // Shuffle the options array
@@ -107,8 +107,8 @@
             <div class="question" id="question${i}">
                 <p>${i}. ${num1} ÷ ${num2} =</p>
                 ${options.map(option => `
-                    <input type="radio" id="option${i}${option.value}" name="options${i}" value="${option.value}" onchange="optionSelected(${i}, '${option.value}')">
-                    <label for="option${i}${option.value}">${option.value}) ${option.content}</label><br>
+                    <input type="radio" id="option${i}${options.indexOf(option)}" name="options${i}" value="${options.indexOf(option)}" onchange="optionSelected(${i}, '${options.indexOf(option)}')">
+                    <label for="option${i}${options.indexOf(option)}">${option.content}</label><br>
                 `).join('')}
             </div>
         `;
@@ -130,11 +130,11 @@
 
       for (var i = 1; i <= 20; i++) {
         var selectedOption = checkedOptions[i];
-        var correctOption = "A"; // 每个题目的正确答案选项
+        var correctOption = 0; // 每个题目的正确答案选项
         var questionDiv = document.getElementById(`question${i}`);
         var correctInput = document.getElementById(`option${i}${correctOption}`);
 
-        if (selectedOption && selectedOption === correctOption) {
+        if (selectedOption !== null && selectedOption === correctOption) {
           questionDiv.classList.remove("incorrect");
           questionDiv.classList.add("correct");
           correctAnswersCount++; // 增加正确答案的数量
@@ -152,22 +152,23 @@
       }
 
       const accuracy = (correctAnswersCount / 20) * 100;
-    const timeInSeconds = timeElapsed.toFixed(2);
+      const timeInSeconds = timeElapsed.toFixed(2);
 
-    let level;
-    if (timeInSeconds <= 240 && accuracy === 100) {
-        level = "优秀";
-    } else if (timeInSeconds <= 300 && accuracy === 100) {
-        level = "良好";
-    } else if (accuracy === 100) {
-        level = "及格";
-    } else {
-        level = "不及格";
-    }
+      let level;
+      if (timeInSeconds <= 240 && accuracy === 100) {
+          level = "优秀";
+      } else if (timeInSeconds <= 300 && accuracy === 100) {
+          level = "良好";
+      } else if (accuracy === 100) {
+          level = "及格";
+      } else {
+          level = "不及格";
+      }
 
-    document.getElementById("timer").textContent = `用时：${timeInSeconds} 秒，正确率：${accuracy.toFixed(2)}%，级别：${level}`;
-}
-  </script>
+      document.getElementById("timer").textContent = `用时：${timeInSeconds} 秒，正确率：${accuracy.toFixed(2)}%，级别：${level}`;
+  }
+</script>
+
 
 </body>
 </html>
