@@ -9,7 +9,7 @@
     font-family: Arial, sans-serif;
     background-color: #f0f0f0;
     margin: 0;
-    padding: 0;
+    padding: 0; /* 保持原有padding为0，让媒体查询控制 */
     display: flex;
     justify-content: center;
     align-items: center;
@@ -18,19 +18,22 @@
 
   .container {
     text-align: center;
+    /* 可以给容器加一些初始内边距 */
+    padding: 20px;
   }
 
   .button-row {
     display: flex;
     justify-content: center;
-    align-items: center;
+    align-items: center; /* 保持原有的对齐方式 */
+    flex-wrap: wrap; /* 允许换行，虽然我们主要用媒体查询控制 */
   }
 
   .button-container {
     margin: 10px;
     display: flex;
     flex-direction: column;
-    align-items: stretch; /* Make buttons have equal width */
+    align-items: stretch; /* 默认让按钮等宽 */
   }
 
   .button {
@@ -46,12 +49,65 @@
     transition: background-color 0.3s, transform 0.2s;
     text-decoration: none; /* Remove underline */
     text-align: center; /* Center button text */
+    min-width: 150px; /* 可以设置一个最小宽度 */
   }
 
   .button:hover {
     background-color: #2980b9;
     transform: scale(1.05);
   }
+
+/* -- 开始添加的部分 -- */
+
+/* 媒体查询：当屏幕宽度小于或等于 600px 时应用以下样式 */
+@media (max-width: 600px) {
+  body {
+    /* 减少 body 的内边距，让内容更靠近屏幕边缘 */
+    padding: 10px;
+     /* 确保内容从顶部开始 */
+    align-items: flex-start;
+  }
+
+  .container {
+     /* 可以稍微调整容器的内边距 */
+     padding: 15px;
+     width: 100%; /* 确保容器宽度利用屏幕 */
+     box-sizing: border-box; /* 防止padding导致溢出 */
+  }
+
+  h1 {
+    /* 在小屏幕上可以适当减小标题字体大小 */
+    font-size: 24px;
+  }
+
+  .button-row {
+    /* 将按钮容器从水平排列改为垂直堆叠 */
+    flex-direction: column;
+    /* 垂直堆叠时，让容器在交叉轴（现在是水平方向）居中 */
+    align-items: center;
+  }
+
+  .button-container {
+    /* 让按钮容器宽度适应内容，并在垂直方向居中对齐按钮 */
+    width: 90%; /* 设置一个宽度百分比 */
+    max-width: 300px; /* 同时设置一个最大像素宽度 */
+    align-items: stretch; /* 让按钮在容器内宽度一致 */
+    margin: 10px 0; /* 调整垂直堆叠时的上下外边距 */
+  }
+
+  .button {
+    /* 移除固定宽度，让按钮宽度由容器和padding决定 */
+    /* width: 200px; */
+    padding: 12px 15px; /* 调整按钮内边距 */
+    font-size: 16px; /* 调整字体大小 */
+    margin: 5px 0; /* 保持按钮间的垂直间距 */
+    width: 100%; /* 让按钮宽度填满其容器 */
+    box-sizing: border-box; /* 防止padding导致溢出 */
+  }
+}
+
+/* -- 结束添加的部分 -- */
+
 </style>
 </head>
 <body>
@@ -59,7 +115,7 @@
   <h1>Welcome to My Website！</h1>
   <div class="button-row">
     <div class="button-container">
-      <a href="jia.html" class="button">两位数乘一位数</a>
+      <a href="chen.html" class="button">两位数乘一位数</a>
       <a href="chu.html" class="button">多位数除两位数</a>
     </div>
     <div class="button-container">
