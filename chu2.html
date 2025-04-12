@@ -2,16 +2,48 @@
 <html>
 <head>
   <title>多位数除三位数</title>
-  <style>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"> <style>
+    /* --- Base Styles (Copied & Adapted) --- */
     body {
       font-family: Arial, sans-serif;
       text-align: center;
       margin: 0;
       padding: 20px;
+      background-color: #f4f7f6;
     }
 
     h1 {
       margin-bottom: 20px;
+      color: #333;
+    }
+
+    .controls-container {
+        margin-bottom: 20px;
+        padding: 15px;
+        background-color: #fff;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .select-container {
+        margin-bottom: 15px;
+    }
+
+    label[for="numProblemsSelect"] {
+        font-size: 16px;
+        vertical-align: middle;
+        color: #555;
+    }
+
+    #numProblemsSelect {
+        padding: 8px 10px;
+        font-size: 16px;
+        margin-left: 8px;
+        border-radius: 5px;
+        border: 1px solid #ccc;
+        background-color: #fff;
+        vertical-align: middle;
+        cursor: pointer;
     }
 
     button {
@@ -21,192 +53,378 @@
       color: white;
       border: none;
       cursor: pointer;
-      margin-bottom: 10px;
+      margin: 5px;
+      border-radius: 5px;
+      transition: background-color 0.3s, transform 0.1s;
+    }
+    button:hover {
+        background-color: #2980b9;
+    }
+    button:active {
+        transform: scale(0.98);
     }
 
     #problemTableWrapper {
       display: flex;
       justify-content: center;
+      overflow-x: auto;
+      width: 100%;
     }
 
     #problemTable {
-      display: none;
+      display: none; /* Initially hidden */
       border-collapse: collapse;
+      margin: 20px auto;
+      width: 100%;
+      max-width: 600px;
+      background-color: #fff;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+      border: 1px solid #eee;
     }
 
-    #problemTable th,
     #problemTable td {
-      border: 1px solid #ccc;
-      padding: 10px;
-      text-align: center; /* 居中对齐表格内容 */
+      border-bottom: 1px solid #eee;
+      padding: 12px 15px;
+      text-align: left;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    #problemTable tr:last-child td {
+        border-bottom: none;
     }
 
-    input[type="number"] {
-      padding: 5px;
+    input[type="number"].input { /* Use class selector */
+      padding: 6px 8px;
       font-size: 16px;
-      width: 60px;
+      width: 70px;
       text-align: center;
       border: 1px solid #ccc;
-    }
-    #instructions {
-      margin-top: 20px;
-      font-size: 16px;
-      font-weight: bold;
+      border-radius: 4px;
+      margin-left: 15px;
+      flex-shrink: 0;
     }
 
-    #problemTableContainer {
+    #instructions {
+      margin-top: 20px;
+      font-size: 14px;
+      color: #666;
+      padding: 10px;
+      background-color: #eaf2f8;
+      border: 1px solid #c5d9e8;
+      border-radius: 5px;
+      text-align: left;
+      line-height: 1.5;
+    }
+
+    #problemTableContainer { /* Might not be strictly needed anymore */
       display: flex;
       justify-content: center;
+      width: 100%;
+    }
+
+    #correctAnswers,
+    #historyRecords {
+        display: none; /* Hidden by default */
+        margin-top: 20px;
+        text-align: left;
+        padding: 15px;
+        border: 1px solid #ddd;
+        background-color: #fff;
+        border-radius: 8px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+
+    /* Specific rule to hide history initially */
+    #historyRecords {
+        display: none;
+    }
+
+
+    #historyRecords h2, #correctAnswers h2 {
+        margin-top: 0;
+        font-size: 18px;
+        color: #333;
+        border-bottom: 1px solid #eee;
+        padding-bottom: 8px;
+        margin-bottom: 12px;
+    }
+    #correctAnswers div, #historyRecords div {
+        margin-bottom: 8px;
+        line-height: 1.5;
+    }
+    #correctAnswers strong, #historyRecords strong {
+        color: #3498db;
+    }
+
+
+    /* --- Mobile Styles --- */
+    @media (max-width: 600px) {
+      body {
+        padding: 10px;
+        font-size: 15px;
+      }
+      h1 {
+        font-size: 22px;
+      }
+       .controls-container {
+            padding: 10px;
+       }
+        label[for="numProblemsSelect"] {
+            font-size: 15px;
+        }
+        #numProblemsSelect {
+            padding: 8px;
+            font-size: 15px;
+        }
+      button {
+        padding: 10px 15px;
+        font-size: 15px;
+        width: calc(50% - 10px);
+        margin: 5px;
+      }
+      #problemTableWrapper {
+         overflow-x: visible;
+      }
+      #problemTable {
+         margin: 15px auto;
+         border-radius: 5px;
+      }
+      /* Hide thead if it existed */
+       #problemTable thead {
+          display: none;
+      }
+      #problemTable td {
+          padding: 10px 12px;
+          flex-direction: row;
+      }
+      input[type="number"].input {
+          padding: 6px;
+          font-size: 15px;
+          width: 65px;
+          margin-left: 10px;
+      }
+      #instructions {
+          font-size: 13px;
+          padding: 8px;
+      }
+      #correctAnswers, #historyRecords {
+          padding: 12px;
+          font-size: 14px;
+      }
+      #correctAnswers h2, #historyRecords h2 {
+          font-size: 16px;
+      }
+      #correctAnswers div, #historyRecords div {
+          margin-bottom: 6px;
+      }
     }
   </style>
   <script>
     var startTime;
-    var correctAnswersCount = 0;
-    var timerIntervalId;
     var practiceCount = 0;
-
+    // Unused variables removed: correctAnswersCount, timerIntervalId
 
     function generateProblems() {
-    clearInterval(timerIntervalId); // 清除计时器
-    clearCorrectAnswers(); // 清除显示答案的内容
-    practiceCount++; // 增加练习次数
+      clearCorrectAnswers();
+      practiceCount++;
+      startTime = Date.now();
 
-    startTime = Date.now(); // 记录开始时间
-    var problemsTable = document.getElementById("problemTable");
-    problemsTable.style.display = "block"; // 显示表格
-    problemsTable.innerHTML = ""; // 清空之前的内容
+      const numToGenerate = parseInt(document.getElementById('numProblemsSelect').value);
 
-    for (var row = 0; row < 4; row++) { // 生成四行题目
-        var newRow = problemsTable.insertRow();
-        newRow.style.textAlign = "center"; // 将每行内容居中对齐
-        for (var col = 0; col < 5; col++) { // 每行五个题目
-            var num1 = Math.floor(Math.random() * 90000) + 10000; // 生成10000到99999之间的五位数
-            var num2 = Math.floor(Math.random() * 900) + 100; // 生成10到99之间的两位数
-            var result = Math.floor(num1 / num2); // 计算除法结果;
-            var firstTwoDigits = result.toString().substr(0, 2); // 获取答案的前两位数字
+      var problemsTable = document.getElementById("problemTable");
+      var tbody = problemsTable.querySelector("tbody");
 
-            var cell = newRow.insertCell();
-            cell.style.textAlign = "center"; // 将单元格内容居中对齐
-            cell.innerHTML = num1 + " ÷ " + num2 + " = " +
-                '<input type="number" data-answer="' + firstTwoDigits + '" class="input">';
-        }
-    }
-}
-
-function verifyAnswers() {
-    clearInterval(timerIntervalId); // 停止计时器
-
-    var inputs = document.querySelectorAll('.input[data-answer]');
-    var endTime = Date.now(); // 记录结束时间
-    var totalTime = (endTime - startTime) / 1000; // 计算用时（单位：秒）
-
-    var correctCount = 0;
-    var incorrectProblems = []; // 存储错误的问题和正确答案
-
-    for (var i = 0; i < inputs.length; i++) {
-        var input = inputs[i];
-        var userAnswer = input.value.substr(0, 2); // 获取用户输入的前两位数字
-        var correctAnswer = input.dataset.answer;
-
-        if (userAnswer === correctAnswer) {
-            input.style.backgroundColor = "lightgreen"; // 设置正确答案的背景颜色
-            correctCount++;
-        } else {
-            input.style.backgroundColor = "pink"; // 设置错误答案的背景颜色
-
-            var problem = input.parentElement.innerText; // 获取问题文本
-            incorrectProblems.push({ problem: problem, correctAnswer: correctAnswer });
-        }
-
-        input.disabled = true; // 禁用输入框
-    }
-
-    var accuracy = (correctCount / inputs.length) * 100; // 计算正确率（百分比）
-
-    // 在页面下方创建div来显示正确答案和错误题目的答案
-    var correctAnswersDiv = document.getElementById("correctAnswers");
-    correctAnswersDiv.innerHTML = ""; // 清空之前的内容
-    correctAnswersDiv.style.display = "block"; // 显示正确答案
-
-    var infoDiv = document.createElement("div");
-    infoDiv.textContent = "用时：" + totalTime.toFixed(1) + "秒，正确率：" + accuracy.toFixed(2) + "%";
-    correctAnswersDiv.appendChild(infoDiv);
-
-    if (incorrectProblems.length > 0) {
-        var incorrectDiv = document.createElement("div");
-        incorrectDiv.textContent = "以下为错误的问题和正确答案：";
-        correctAnswersDiv.appendChild(incorrectDiv);
-
-        for (var j = 0; j < incorrectProblems.length; j++) {
-            var problemDiv = document.createElement("div");
-            problemDiv.textContent = incorrectProblems[j].problem + " 正确答案：" + incorrectProblems[j].correctAnswer;
-            correctAnswersDiv.appendChild(problemDiv);
-        }
-    }
-
-
-      updateHistoryRecords(practiceCount, totalTime.toFixed(1), accuracy.toFixed(2)); // 更新历史练习记录
-
-      // 在页面下方创建div来显示正确答案
-      var correctAnswersDiv = document.getElementById("correctAnswers");
-      correctAnswersDiv.innerHTML = ""; // 清空之前的内容
-      for (var j = 0; j < incorrectProblems.length; j++) {
-        var problemDiv = document.createElement("div");
-        problemDiv.textContent = incorrectProblems[j].problem + " 正确答案：" + incorrectProblems[j].correctAnswer;
-        correctAnswersDiv.appendChild(problemDiv);
+      if (!tbody) {
+          tbody = document.createElement("tbody");
+          problemsTable.appendChild(tbody);
       }
-      correctAnswersDiv.style.display = "block"; // 显示正确答案
+      tbody.innerHTML = ''; // Clear previous problems
 
-      // 显示用时和正确率
-      var infoDiv = document.createElement("div");
-      infoDiv.textContent = "用时：" + totalTime.toFixed(1) + "秒，正确率：" + accuracy.toFixed(2) + "%";
-      correctAnswersDiv.appendChild(infoDiv);
+      for (var i = 0; i < numToGenerate; i++) {
+          // --- Specific Logic for this page ---
+          var num1 = Math.floor(Math.random() * 900000) + 100000; // Generate 100000 to 999999 (6 digits) - Adjusted for 3-digit divisor
+          var num2 = Math.floor(Math.random() * 900) + 100;    // Generate 100 to 999 (3 digits) - CORRECT
+          var result = Math.floor(num1 / num2);
+          var firstTwoDigits = result.toString().padStart(2, '0').substr(0, 2); // Get first two digits, pad if result < 10
+          // --- End of Specific Logic ---
+
+
+          var newRow = tbody.insertRow();
+          var cell = newRow.insertCell();
+
+          const problemText = document.createTextNode(`${i + 1}. ${num1} ÷ ${num2} = `);
+          cell.appendChild(problemText);
+
+          const inputElement = document.createElement("input");
+          inputElement.type = "number";
+          // --- Store the correct answer (first two digits) ---
+          inputElement.dataset.answer = firstTwoDigits;
+          // ---
+          inputElement.classList.add("input");
+          inputElement.setAttribute("aria-label", `Answer for problem ${i + 1}`);
+
+          cell.appendChild(inputElement);
+      }
+
+      problemsTable.style.display = "table"; // Show table
+
+      var inputs = document.querySelectorAll('.input');
+      inputs.forEach(input => {
+          input.disabled = false;
+          input.style.backgroundColor = "";
+          input.value = "";
+      });
+
+       if (inputs.length > 0) {
+           inputs[0].focus();
+       }
     }
 
-    //清空div内容
+    function verifyAnswers() {
+      var inputs = document.querySelectorAll('.input[data-answer]');
+      if (inputs.length === 0 || (inputs.length > 0 && inputs[0].disabled)) { // Check if problems exist and are not already verified
+          alert("请先生成新的题目再验证！");
+          return;
+      }
+      if (!startTime) {
+          alert("无法计算时间，请重新生成题目。");
+          return;
+      }
+
+      var endTime = Date.now();
+      var totalTime = (endTime - startTime) / 1000;
+      var correctCount = 0;
+      var incorrectProblems = [];
+
+      for (var i = 0; i < inputs.length; i++) {
+          var input = inputs[i];
+          // --- Specific Logic: Get first TWO digits from user input ---
+          var userAnswer = input.value.trim().padStart(2, '0').substr(0, 2); // Pad user input too for comparison consistency
+          // ---
+          var correctAnswer = input.dataset.answer; // Already padded in generation
+
+          let problemTextNode = Array.from(input.parentNode.childNodes).find(node => node.nodeType === Node.TEXT_NODE);
+          let problemText = problemTextNode ? problemTextNode.textContent.trim() : `题目 ${i+1}`;
+          problemText = problemText.replace('=', '').trim();
+
+          if (userAnswer === correctAnswer) {
+              input.style.backgroundColor = "lightgreen";
+              correctCount++;
+          } else {
+              input.style.backgroundColor = "pink";
+              incorrectProblems.push({
+                  problem: problemText,
+                  correctAnswer: correctAnswer,
+                  userAnswer: userAnswer === '00' && input.value.trim() === '' ? '未作答' : userAnswer // Handle empty input better
+              });
+          }
+          input.disabled = true;
+      }
+
+      var accuracy = (inputs.length > 0) ? (correctCount / inputs.length) * 100 : 0;
+
+      // Display results
+      var correctAnswersDiv = document.getElementById("correctAnswers");
+      correctAnswersDiv.innerHTML = "";
+      correctAnswersDiv.style.display = "block";
+
+      var resultTitle = document.createElement("h2");
+      resultTitle.textContent = "本次练习结果";
+      correctAnswersDiv.appendChild(resultTitle);
+
+      var infoDiv = document.createElement("div");
+      infoDiv.innerHTML = `<strong>题目数量：</strong>${inputs.length}<br>
+                           <strong>用时：</strong>${totalTime.toFixed(1)}秒<br>
+                           <strong>正确率：</strong>${accuracy.toFixed(1)}% (${correctCount}/${inputs.length})`;
+      correctAnswersDiv.appendChild(infoDiv);
+
+      if (incorrectProblems.length > 0) {
+          var incorrectTitleDiv = document.createElement("div");
+          incorrectTitleDiv.innerHTML = "<br><strong>错误题目详情：</strong>";
+          incorrectTitleDiv.style.marginTop = "10px";
+          correctAnswersDiv.appendChild(incorrectTitleDiv);
+          for (var j = 0; j < incorrectProblems.length; j++) {
+              var problemDiv = document.createElement("div");
+               problemDiv.innerHTML = `${incorrectProblems[j].problem} = <span style="color: red; text-decoration: line-through;">${incorrectProblems[j].userAnswer}</span> ... (正确前两位: <strong>${incorrectProblems[j].correctAnswer}</strong>)`;
+              problemDiv.style.marginBottom = "3px";
+              correctAnswersDiv.appendChild(problemDiv);
+          }
+      } else if(inputs.length > 0) {
+          var allCorrectDiv = document.createElement("div");
+          allCorrectDiv.innerHTML = "<br><strong style='color: green;'>太棒了，全部正确！继续努力！</strong>";
+          correctAnswersDiv.appendChild(allCorrectDiv);
+      }
+
+      // --- Pass total problems count to history ---
+      updateHistoryRecords(practiceCount, inputs.length, totalTime.toFixed(1), accuracy.toFixed(1));
+
+      // --- Make history visible ---
+      document.getElementById("historyRecords").style.display = "block";
+
+      startTime = null;
+    }
+
     function clearCorrectAnswers() {
       var correctAnswersDiv = document.getElementById("correctAnswers");
-      correctAnswersDiv.innerHTML = ""; // 清空内容
-      correctAnswersDiv.style.display = "none"; // 隐藏
+      if (correctAnswersDiv) {
+          correctAnswersDiv.innerHTML = "";
+          correctAnswersDiv.style.display = "none";
+      }
+      // Do not hide the table here, only clear results
     }
 
-    //在 <script> 标签中，添加一个用于更新历史练习记录的函数：
-    function updateHistoryRecords(practiceNumber, time, accuracy) {
-      var historyDiv = document.getElementById("historyRecords");
+    // Updated to include total problems count
+    function updateHistoryRecords(practiceNum, totalProblems, time, accuracy) {
+        var historyDiv = document.getElementById("historyRecords");
+        if (!historyDiv) return;
 
-      var recordDiv = document.createElement("div");
-      recordDiv.textContent = "第 " + practiceNumber + " 次练习 - 练习时间：" + time + "秒，练习正确率：" + accuracy + "%";
+        var historyTitle = historyDiv.querySelector('h2');
+        if (!historyTitle) {
+            historyTitle = document.createElement("h2");
+            historyTitle.textContent = "历史练习记录";
+            historyDiv.insertBefore(historyTitle, historyDiv.firstChild);
+        }
 
-      historyDiv.appendChild(recordDiv);
+        var recordDiv = document.createElement("div");
+        recordDiv.textContent = `第 ${practiceNum} 次 (${totalProblems}题) - 用时：${time}秒，正确率：${accuracy}%`;
+        historyDiv.insertBefore(recordDiv, historyTitle.nextSibling); // Insert after title
     }
-
-
-
-
-
-
   </script>
 </head>
 <body>
-  <h1>多位数除三位数练习题生成</h1>
-  <button onclick="generateProblems()">生成题目</button>
-  <div id="problemTableContainer">
-    <table id="problemTable">
-      <thead>
-        <tr>
-          <th>题目</th>
-          <th>题目</th>
-          <th>题目</th>
-          <th>题目</th>
-          <th>题目</th>
-        </tr>
-      </thead>
+
+  <h1>多位数除三位数 练习题</h1> <div class="controls-container">
+      <div class="select-container">
+          <label for="numProblemsSelect">题目数量：</label>
+          <select id="numProblemsSelect">
+              <option value="5">5</option>
+              <option value="10">10</option>
+              <option value="15">15</option>
+              <option value="20" selected>20</option>
+              <option value="25">25</option>
+              <option value="30">30</option>
+          </select>
+      </div>
+      <div>
+          <button onclick="generateProblems()">生成题目</button>
+          <button onclick="verifyAnswers()">验证答案</button>
+      </div>
+  </div>
+
+  <div id="problemTableContainer"> <table id="problemTable">
+      <tbody>
+          </tbody>
     </table>
   </div>
-  <br>
-  <button onclick="verifyAnswers()">验证答案</button>
-  <p id="instructions">【备注】：多位数 ÷ 三位数，只需要商前两位，无需四舍五入（例如：85313 ÷ 411 商 21），动笔。（20组，240s）</p>
-  <div id="correctAnswers" style="display: none;"></div>
-  <div id="historyRecords"></div>
+
+  <p id="instructions">【说明】：请从上方选择题目数量。对于每个题目（多位数 ÷ **三位数**），只需在右侧输入框中输入**商的前两位**数字，无需四舍五入。例如：85313 ÷ 411 的商是 207...，只需输入 20。如果商只有一位数（如 5），请输入 05。</p>
+
+  <div id="correctAnswers" style="display: none;">
+      </div>
+  <div id="historyRecords" style="display: none;"> </div>
+
 </body>
 </html>
