@@ -2,16 +2,48 @@
 <html>
 <head>
   <title>三位数加减</title>
-  <style>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"> <style>
+    /* --- Base Styles (Copied & Adapted) --- */
     body {
       font-family: Arial, sans-serif;
       text-align: center;
       margin: 0;
       padding: 20px;
+      background-color: #f4f7f6;
     }
 
     h1 {
       margin-bottom: 20px;
+      color: #333;
+    }
+
+    .controls-container {
+        margin-bottom: 20px;
+        padding: 15px;
+        background-color: #fff;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .select-container {
+        margin-bottom: 15px;
+    }
+
+    label[for="numProblemsSelect"] {
+        font-size: 16px;
+        vertical-align: middle;
+        color: #555;
+    }
+
+    #numProblemsSelect {
+        padding: 8px 10px;
+        font-size: 16px;
+        margin-left: 8px;
+        border-radius: 5px;
+        border: 1px solid #ccc;
+        background-color: #fff;
+        vertical-align: middle;
+        cursor: pointer;
     }
 
     button {
@@ -21,176 +53,393 @@
       color: white;
       border: none;
       cursor: pointer;
-      margin-bottom: 10px;
+      margin: 5px;
+      border-radius: 5px;
+      transition: background-color 0.3s, transform 0.1s;
+    }
+    button:hover {
+        background-color: #2980b9;
+    }
+    button:active {
+        transform: scale(0.98);
     }
 
-    #problemTable {
-      display: none;
-      margin-top: 20px;
-      border-collapse: collapse;
+    #problemTableWrapper {
+      display: flex;
+      justify-content: center;
+      overflow-x: auto;
       width: 100%;
     }
 
-    #problemTable th,
-    #problemTable td {
-      border: 1px solid #ccc;
-      padding: 10px;
+    #problemTable {
+      display: none; /* Initially hidden */
+      border-collapse: collapse;
+      margin: 20px auto;
+      width: 100%;
+      max-width: 600px;
+      background-color: #fff;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+      border: 1px solid #eee;
     }
 
-    input[type="number"] {
-      padding: 5px;
+    #problemTable td {
+      border-bottom: 1px solid #eee;
+      padding: 12px 15px;
+      text-align: left;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    #problemTable tr:last-child td {
+        border-bottom: none;
+    }
+
+    input[type="number"].input { /* Use class selector */
+      padding: 6px 8px;
       font-size: 16px;
-      width: 60px;
+      width: 80px; /* Increased width slightly for 3/4 digit answers */
       text-align: center;
       border: 1px solid #ccc;
+      border-radius: 4px;
+      margin-left: 15px;
+      flex-shrink: 0;
+    }
+
+    #instructions {
+      margin-top: 20px;
+      font-size: 14px;
+      color: #666;
+      padding: 10px;
+      background-color: #eaf2f8;
+      border: 1px solid #c5d9e8;
+      border-radius: 5px;
+      text-align: left;
+      line-height: 1.5;
+    }
+
+    #problemTableContainer { /* Container for table */
+        display: flex;
+        justify-content: center;
+        width: 100%;
+    }
+
+
+    #correctAnswers,
+    #historyRecords {
+        display: none; /* Hidden by default */
+        margin-top: 20px;
+        text-align: left;
+        padding: 15px;
+        border: 1px solid #ddd;
+        background-color: #fff;
+        border-radius: 8px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+
+    /* Specific rule to hide history initially */
+    #historyRecords {
+        display: none;
+    }
+
+
+    #historyRecords h2, #correctAnswers h2 {
+        margin-top: 0;
+        font-size: 18px;
+        color: #333;
+        border-bottom: 1px solid #eee;
+        padding-bottom: 8px;
+        margin-bottom: 12px;
+    }
+    #correctAnswers div, #historyRecords div {
+        margin-bottom: 8px;
+        line-height: 1.5;
+    }
+    #correctAnswers strong, #historyRecords strong {
+        color: #3498db;
+    }
+
+
+    /* --- Mobile Styles --- */
+    @media (max-width: 600px) {
+      body {
+        padding: 10px;
+        font-size: 15px;
+      }
+      h1 {
+        font-size: 22px;
+      }
+       .controls-container {
+            padding: 10px;
+       }
+        label[for="numProblemsSelect"] {
+            font-size: 15px;
+        }
+        #numProblemsSelect {
+            padding: 8px;
+            font-size: 15px;
+        }
+      button {
+        padding: 10px 15px;
+        font-size: 15px;
+        width: calc(50% - 10px);
+        margin: 5px;
+      }
+      #problemTableWrapper {
+         overflow-x: visible;
+      }
+      #problemTable {
+         margin: 15px auto;
+         border-radius: 5px;
+      }
+       #problemTable thead { /* Hide thead if it existed */
+          display: none;
+      }
+      #problemTable td {
+          padding: 10px 12px;
+          flex-direction: row;
+      }
+      input[type="number"].input {
+          padding: 6px;
+          font-size: 15px;
+          width: 75px; /* Adjust mobile width */
+          margin-left: 10px;
+      }
+      #instructions {
+          font-size: 13px;
+          padding: 8px;
+      }
+      #correctAnswers, #historyRecords {
+          padding: 12px;
+          font-size: 14px;
+      }
+      #correctAnswers h2, #historyRecords h2 {
+          font-size: 16px;
+      }
+      #correctAnswers div, #historyRecords div {
+          margin-bottom: 6px;
+      }
     }
   </style>
   <script>
     var startTime;
-    var correctAnswersCount = 0;
-    var timerIntervalId;
     var practiceCount = 0;
 
-
     function generateProblems() {
-    clearInterval(timerIntervalId); // 清除计时器
-    clearCorrectAnswers(); // 清除显示答案的内容
-    practiceCount++; // 增加练习次数
+      clearCorrectAnswers();
+      practiceCount++;
+      startTime = Date.now();
 
-    startTime = Date.now(); // 记录开始时间
-    var problemsTable = document.getElementById("problemTable");
-    problemsTable.style.display = "block"; // 显示表格
-    problemsTable.innerHTML = ""; // 清空之前的内容
+      const numToGenerate = parseInt(document.getElementById('numProblemsSelect').value);
 
-    var problemCounter = 1;
-    for (var row = 0; row < 4; row++) {
-        var newRow = problemsTable.insertRow();
-        for (var col = 0; col < 10; col++) {
-            var operator = Math.random() < 0.5 ? '+' : '-';
-            var num1 = Math.floor(Math.random() * 900) + 100; // 生成10到99之间的两位数
-            var num2 = Math.floor(Math.random() * 900) + 100;
+      var problemsTable = document.getElementById("problemTable");
+      var tbody = problemsTable.querySelector("tbody");
 
-            if (operator === '-') {
-                if (num1 < num2) {
-                    // Swap num1 and num2 to ensure positive results
-                    var temp = num1;
-                    num1 = num2;
-                    num2 = temp;
-                }
-            }
+      if (!tbody) {
+          tbody = document.createElement("tbody");
+          problemsTable.appendChild(tbody);
+      }
+      tbody.innerHTML = ''; // Clear previous problems
 
-            var result = operator === '+' ? (num1 + num2) : (num1 - num2);
+      for (var i = 0; i < numToGenerate; i++) {
+          // --- Specific Logic for this page: 3-digit +/- 3-digit ---
+          var operator = Math.random() < 0.5 ? '+' : '-';
+          var num1 = Math.floor(Math.random() * 900) + 100; // Generate 100 to 999
+          var num2 = Math.floor(Math.random() * 900) + 100; // Generate 100 to 999
 
-            var cell = newRow.insertCell();
-            cell.innerHTML = num1 + " " + operator + " " + num2 + " = " +
-                '<input type="number" data-answer="' + result + '" oninput="checkAnswer(event)" class="input">';
+          // Ensure subtraction results are non-negative
+          if (operator === '-' && num1 < num2) {
+              var temp = num1;
+              num1 = num2;
+              num2 = temp;
+          }
 
-            problemCounter++;
-        }
+          var result = (operator === '+') ? (num1 + num2) : (num1 - num2);
+          // --- End of Specific Logic ---
+
+
+          var newRow = tbody.insertRow();
+          var cell = newRow.insertCell();
+
+          const problemText = document.createTextNode(`${i + 1}. ${num1} ${operator} ${num2} = `);
+          cell.appendChild(problemText);
+
+          const inputElement = document.createElement("input");
+          inputElement.type = "number";
+          // --- Store the full result as the answer ---
+          inputElement.dataset.answer = result;
+          // ---
+          inputElement.classList.add("input");
+          inputElement.setAttribute("aria-label", `Answer for problem ${i + 1}`);
+          // --- Include the oninput event handler ---
+          inputElement.setAttribute("oninput", "checkAnswer(event)");
+          // ---
+
+          cell.appendChild(inputElement);
+      }
+
+      problemsTable.style.display = "table"; // Show table
+
+      var inputs = document.querySelectorAll('.input');
+      inputs.forEach(input => {
+          input.disabled = false;
+          input.style.backgroundColor = "";
+          input.value = "";
+      });
+
+       if (inputs.length > 0) {
+           inputs[0].focus();
+       }
     }
-}
 
-
+    // --- Keep the original checkAnswer function ---
     function checkAnswer(event) {
       var input = event.target;
-      input.style.backgroundColor = "";
+      if (input.value !== "") {
+         input.style.backgroundColor = "";
+      }
     }
+    // ---
 
     function verifyAnswers() {
-      clearInterval(timerIntervalId); // 停止计时器
-
       var inputs = document.querySelectorAll('.input[data-answer]');
-      var endTime = Date.now(); // 记录结束时间
-      var totalTime = (endTime - startTime) / 1000; // 计算用时（单位：秒）
+      if (inputs.length === 0 || (inputs.length > 0 && inputs[0].disabled)) {
+          alert("请先生成新的题目再验证！");
+          return;
+      }
+      if (!startTime) {
+          alert("无法计算时间，请重新生成题目。");
+          return;
+      }
 
+      var endTime = Date.now();
+      var totalTime = (endTime - startTime) / 1000;
       var correctCount = 0;
-      var incorrectProblems = []; // 存储错误的问题和正确答案
+      var incorrectProblems = [];
 
       for (var i = 0; i < inputs.length; i++) {
-        var input = inputs[i];
-        var userAnswer = parseInt(input.value);
-        var correctAnswer = parseInt(input.dataset.answer);
+          var input = inputs[i];
+          // --- Specific Logic: Compare full integer answers ---
+          var userAnswer = input.value.trim();
+          var correctAnswer = input.dataset.answer;
 
-        if (userAnswer === correctAnswer) {
-          correctCount++;
-        } else {
-          input.style.backgroundColor = "pink"; // 标记错误答案为粉红色
+          if (userAnswer !== "" && !isNaN(parseInt(userAnswer)) && userAnswer === correctAnswer) {
+                input.style.backgroundColor = "lightgreen";
+                correctCount++;
+          } else {
+                input.style.backgroundColor = "pink";
+                let problemTextNode = Array.from(input.parentNode.childNodes).find(node => node.nodeType === Node.TEXT_NODE);
+                let problemText = problemTextNode ? problemTextNode.textContent.trim() : `题目 ${i+1}`;
+                problemText = problemText.replace('=', '').trim();
+                incorrectProblems.push({
+                    problem: problemText,
+                    correctAnswer: correctAnswer,
+                    userAnswer: userAnswer === '' ? '未作答' : userAnswer
+                });
+          }
+          // ---
 
-          var problem = input.parentElement.innerText; // 获取问题文本
-          incorrectProblems.push({ problem: problem, correctAnswer: correctAnswer });
-        }
-
-        input.disabled = true; // 禁用输入框
+          input.disabled = true; // Disable input after checking
       }
 
-      var accuracy = (correctCount / inputs.length) * 100; // 计算正确率（百分比）
+      var accuracy = (inputs.length > 0) ? (correctCount / inputs.length) * 100 : 0;
 
-      updateHistoryRecords(practiceCount, totalTime.toFixed(1), accuracy.toFixed(2)); // 更新历史练习记录
-
-      // 在页面下方创建div来显示正确答案
+      // Display results
       var correctAnswersDiv = document.getElementById("correctAnswers");
-      correctAnswersDiv.innerHTML = ""; // 清空之前的内容
-      for (var j = 0; j < incorrectProblems.length; j++) {
-        var problemDiv = document.createElement("div");
-        problemDiv.textContent = incorrectProblems[j].problem + " 正确答案：" + incorrectProblems[j].correctAnswer;
-        correctAnswersDiv.appendChild(problemDiv);
-      }
-      correctAnswersDiv.style.display = "block"; // 显示正确答案
+      correctAnswersDiv.innerHTML = "";
+      correctAnswersDiv.style.display = "block";
 
-      // 显示用时和正确率
+      var resultTitle = document.createElement("h2");
+      resultTitle.textContent = "本次练习结果";
+      correctAnswersDiv.appendChild(resultTitle);
+
       var infoDiv = document.createElement("div");
-      infoDiv.textContent = "用时：" + totalTime.toFixed(1) + "秒，正确率：" + accuracy.toFixed(2) + "%";
+      infoDiv.innerHTML = `<strong>题目数量：</strong>${inputs.length}<br>
+                           <strong>用时：</strong>${totalTime.toFixed(1)}秒<br>
+                           <strong>正确率：</strong>${accuracy.toFixed(1)}% (${correctCount}/${inputs.length})`;
       correctAnswersDiv.appendChild(infoDiv);
+
+      if (incorrectProblems.length > 0) {
+          var incorrectTitleDiv = document.createElement("div");
+          incorrectTitleDiv.innerHTML = "<br><strong>错误题目详情：</strong>";
+          incorrectTitleDiv.style.marginTop = "10px";
+          correctAnswersDiv.appendChild(incorrectTitleDiv);
+          for (var j = 0; j < incorrectProblems.length; j++) {
+              var problemDiv = document.createElement("div");
+               problemDiv.innerHTML = `${incorrectProblems[j].problem} = <span style="color: red; text-decoration: line-through;">${incorrectProblems[j].userAnswer}</span> (正确: <strong>${incorrectProblems[j].correctAnswer}</strong>)`;
+              problemDiv.style.marginBottom = "3px";
+              correctAnswersDiv.appendChild(problemDiv);
+          }
+      } else if(inputs.length > 0) {
+          var allCorrectDiv = document.createElement("div");
+          allCorrectDiv.innerHTML = "<br><strong style='color: green;'>太棒了，全部正确！继续努力！</strong>";
+          correctAnswersDiv.appendChild(allCorrectDiv);
+      }
+
+      updateHistoryRecords(practiceCount, inputs.length, totalTime.toFixed(1), accuracy.toFixed(1));
+
+      document.getElementById("historyRecords").style.display = "block"; // Show history
+
+      startTime = null;
     }
 
-    //清空div内容
     function clearCorrectAnswers() {
       var correctAnswersDiv = document.getElementById("correctAnswers");
-      correctAnswersDiv.innerHTML = ""; // 清空内容
-      correctAnswersDiv.style.display = "none"; // 隐藏
+      if (correctAnswersDiv) {
+          correctAnswersDiv.innerHTML = "";
+          correctAnswersDiv.style.display = "none";
+      }
     }
 
-    //在 <script> 标签中，添加一个用于更新历史练习记录的函数：
-    function updateHistoryRecords(practiceNumber, time, accuracy) {
-      var historyDiv = document.getElementById("historyRecords");
+    function updateHistoryRecords(practiceNum, totalProblems, time, accuracy) {
+        var historyDiv = document.getElementById("historyRecords");
+        if (!historyDiv) return;
 
-      var recordDiv = document.createElement("div");
-      recordDiv.textContent = "第 " + practiceNumber + " 次练习 - 练习时间：" + time + "秒，练习正确率：" + accuracy + "%";
+        var historyTitle = historyDiv.querySelector('h2');
+        if (!historyTitle) {
+            historyTitle = document.createElement("h2");
+            historyTitle.textContent = "历史练习记录";
+            historyDiv.insertBefore(historyTitle, historyDiv.firstChild);
+        }
 
-      historyDiv.appendChild(recordDiv);
+        var recordDiv = document.createElement("div");
+        recordDiv.textContent = `第 ${practiceNum} 次 (${totalProblems}题) - 用时：${time}秒，正确率：${accuracy}%`;
+        historyDiv.insertBefore(recordDiv, historyTitle.nextSibling);
     }
-
-
-
-
-
-
   </script>
 </head>
 <body>
-  <h1>三位数加减</h1>
-  <button onclick="generateProblems()">生成题目</button>
-  <table id="problemTable">
-    <thead>
-      <tr>
-        <th>题目</th>
-        <th>题目</th>
-        <th>题目</th>
-        <th>题目</th>
-        <th>题目</th>
-        <th>题目</th>
-        <th>题目</th>
-        <th>题目</th>
-        <th>题目</th>
-        <th>题目</th>
-      </tr>
-    </thead>
-  </table>
-  <br>
-  <button onclick="verifyAnswers()">验证答案</button>
-  <p id="instructions">【备注】：三位数加减，口算（40组，360s）</p>
-  <div id="correctAnswers" style="display: none;"></div>
-  <div id="historyRecords"></div>
+
+  <h1>三位数加减 练习</h1> <div class="controls-container">
+      <div class="select-container">
+          <label for="numProblemsSelect">题目数量：</label>
+          <select id="numProblemsSelect">
+              <option value="10">10</option>
+              <option value="15">15</option>
+              <option value="20">20</option>
+              <option value="30">30</option>
+              <option value="40" selected>40</option> <option value="50">50</option>
+          </select>
+      </div>
+      <div>
+          <button onclick="generateProblems()">生成题目</button>
+          <button onclick="verifyAnswers()">验证答案</button>
+      </div>
+  </div>
+
+  <div id="problemTableContainer">
+    <table id="problemTable">
+       <tbody>
+          </tbody>
+    </table>
+  </div>
+
+  <p id="instructions">【说明】：请从上方选择题目数量。对于每个题目（**三位数** 加或减 **三位数**），请在右侧输入框中输入**完整的计算结果**。</p>
+
+  <div id="correctAnswers" style="display: none;">
+      </div>
+  <div id="historyRecords" style="display: none;"> </div>
 
 </body>
 </html>
