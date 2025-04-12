@@ -294,6 +294,19 @@
        if (inputs.length > 0) {
            inputs[0].focus();
        }
+           // --- 添加验证答案按钮并放置在 instructions 标签前面 ---
+    var problemTableContainer = document.getElementById("problemTableContainer");
+    var instructionsElement = document.getElementById("instructions");
+    var verifyButton = document.createElement("button");
+    verifyButton.textContent = "验证答案";
+    verifyButton.onclick = verifyAnswers;
+
+    // 获取 problemTableContainer 的父元素
+    var parentElement = problemTableContainer.parentNode;
+
+    // 在 instructionsElement 之前插入 verifyButton
+    parentElement.insertBefore(verifyButton, instructionsElement);
+    // ---
     }
 
     // --- Keep the original checkAnswer function ---
@@ -426,7 +439,6 @@
       </div>
       <div>
           <button onclick="generateProblems()">生成题目</button>
-          <button onclick="verifyAnswers()">验证答案</button>
       </div>
   </div>
 
