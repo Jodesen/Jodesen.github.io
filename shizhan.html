@@ -1,174 +1,325 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>考场实战</title>
-  <style>
-    body {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
-      margin: 0;
-      font-family: Arial, sans-serif;
-    }
+ <title>考场实战</title>
+ <meta name="viewport" content="width=device-width, initial-scale=1.0">
+ <style>
+  body {
+   display: flex;
+   flex-direction: column;
+   align-items: center;
+   justify-content: flex-start;
+   min-height: 100vh;
+   margin: 0;
+   padding: 20px;
+   font-family: Arial, sans-serif;
+  }
 
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 20px;
-      margin-top: 100px;
-      /* Adjust this margin to move the grid lower */
-    }
+  h1, h2 {
+   text-align: center;
+  }
 
-    .question {
-      padding: 10px;
-      border: 1px solid #ccc;
-      border-radius: 5px;
-    }
+  .grid {
+   display: grid;
+   grid-template-columns: repeat(4, 1fr);
+   gap: 15px;
+   margin-top: 30px;
+   width: 95%;
+   max-width: 600px;
+  }
 
-    .correct {
-      background-color: green;
-    }
+  .question {
+   padding: 15px;
+   border: 1px solid #ccc;
+   border-radius: 5px;
+   position: relative; /* 为标示定位做准备 */
+  }
 
-    .incorrect {
-      background-color: red;
-    }
+  .question p {
+   margin-top: 0;
+   margin-bottom: 10px;
+   white-space: nowrap; /* 阻止题目数字过长时换行 */
+  }
 
-    .buttons {
-      display: flex;
-      margin-top: 20px;
-    }
 
-    .buttons button {
-      padding: 10px 20px;
-      margin: 0 10px;
-      font-size: 16px;
-      background-color: #007BFF;
-      color: #fff;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-    }
 
-    #timer {
-      margin-top: 20px;
-    }
-  </style>
+  .buttons {
+   display: flex;
+   flex-direction: column;
+   align-items: center;
+   margin-top: 30px;
+   width: 80%;
+   max-width: 400px;
+  }
+
+  .buttons button {
+   padding: 12px 25px;
+   margin: 10px 0;
+   font-size: 18px;
+   background-color: #007BFF;
+   color: #fff;
+   border: none;
+   border-radius: 5px;
+   cursor: pointer;
+   width: 100%;
+  }
+
+  #timer {
+   margin-top: 30px;
+   font-size: 16px;
+   text-align: center;
+  }
+
+  .unanswered {
+    position: absolute;
+    bottom: 5px; /* 移动到底部 */
+    right: 5px;
+    background-color: yellow; /* 未作答标黄 */
+    color: black;
+    padding: 5px;
+    border-radius: 3px;
+    font-size: 12px;
+}
+
+  .incorrect-answer {
+   position: absolute;
+   bottom: 5px; /* 移动到底部 */
+   right: 5px;
+   background-color: red; /* 恢复红色背景 */
+   color: white; /* 恢复白色文字 */
+   padding: 5px;
+   border-radius: 3px;
+   font-size: 12px;
+  }
+
+  /* 针对小屏幕的样式调整 */
+  @media (max-width: 600px) {
+   .grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    margin-top: 20px;
+   }
+
+   .question {
+    padding: 10px;
+   }
+
+   .question p {
+    font-size: 16px;
+   }
+
+   .question input[type="radio"] + label {
+    font-size: 16px;
+   }
+
+   .buttons {
+    width: 90%;
+   }
+
+   .buttons button {
+    font-size: 18px;
+    padding: 15px;
+   }
+
+   #timer {
+    font-size: 18px;
+   }
+  }
+
+  @media (max-width: 400px) {
+   .grid {
+    grid-template-columns: 1fr;
+   }
+  }
+ </style>
 </head>
 <body>
 
-  <h1>考场实战</h1>
-  <h2>根据选项差距截位,20组，240秒优秀，360秒及格</h2>
+ <h1>考场实战</h1>
+ <h2>根据选项差距截位,20组，240秒优秀，360秒及格</h2>
 
-  <div class="grid" id="questionsGrid"></div>
+ <div class="grid" id="questionsGrid"></div>
 
-  <div class="buttons">
-    <button onclick="generateQuestions()">生成题目</button>
-    <button onclick="checkAnswers()" id="checkButton" disabled>检查答案</button>
-  </div>
+ <div class="buttons">
+  <button onclick="generateQuestions()">生成题目</button>
+  <button onclick="checkAnswers()" id="checkButton" disabled>检查答案</button>
+ </div>
 
-  <p id="timer"></p>
+ <p id="timer"></p>
 
-  <script>
-    let correctAnswersCount = 0;
-    let checkedOptions = [];
-    let startTime;
+ <script>
+  let correctAnswersCount = 0;
+  let checkedOptions = [];
+  let startTime;
+  let correctOptionIndices = {}; // 用于存储每个问题的正确答案索引
+  let correctAnswerCounts = [0, 0, 0, 0]; // 记录每个选项作为正确答案的次数
 
-    function generateQuestions() {
-      var questionsGrid = document.getElementById("questionsGrid");
-      questionsGrid.innerHTML = ""; // 清空之前的题目
+  function generateQuestions() {
+   var questionsGrid = document.getElementById("questionsGrid");
+   questionsGrid.innerHTML = ""; // 清空之前的题目
+   correctAnswersCount = 0; // 重置正确答案计数器
+   checkedOptions = []; // 重置已选答案
+   correctOptionIndices = {}; // 重置正确答案索引
+   correctAnswerCounts = [0, 0, 0, 0]; // 重置正确答案计数器
 
-      checkedOptions = []; // 重置已选答案
+   for (var i = 1; i <= 20; i++) {
+    var num1 = Math.floor(Math.random() * 9000) + 1000; // 随机生成四位数
+    var num2 = Math.floor(Math.random() * 9000) + 1000;
+    var correctAnswerValue = num1 / num2;
 
-      for (var i = 1; i <= 20; i++) {
-        var num1 = Math.floor(Math.random() * 9000) + 1000; // 随机生成四位数
-        var num2 = Math.floor(Math.random() * 9000) + 1000;
-        var correctAnswer = num1 / num2;
+    var errorMargin = 0.15;
+    var incorrectAnswer1 = correctAnswerValue + (Math.random() * errorMargin * 2 - errorMargin);
+    incorrectAnswer1 = Math.max(incorrectAnswer1, 0); // 确保选项不会小于0
+    var incorrectAnswer2 = correctAnswerValue + (errorMargin / 2);
+    var incorrectAnswer3 = correctAnswerValue - (errorMargin / 2);
+    incorrectAnswer3 = Math.max(incorrectAnswer3, 0);
 
-        var errorMargin = 0.15;
-        var incorrectAnswer = correctAnswer + (Math.random() * errorMargin * 2 - errorMargin);
-        incorrectAnswer = Math.max(incorrectAnswer, 0); // 确保选项不会小于0
+    var options = [
+     { content: incorrectAnswer1.toFixed(2), isCorrect: false },
+     { content: incorrectAnswer2.toFixed(2), isCorrect: false },
+     { content: incorrectAnswer3.toFixed(2), isCorrect: false },
+     { content: correctAnswerValue.toFixed(2), isCorrect: true }
+    ];
 
-        var options = [
-          { content: correctAnswer.toFixed(2) },
-          { content: incorrectAnswer.toFixed(2) },
-          { content: (correctAnswer + (errorMargin / 2)).toFixed(2) },
-          { content: (correctAnswer - (errorMargin / 2)).toFixed(2) }
-        ];
+    // 确定哪个索引应该是正确答案，并直接设置
+    let targetCorrectIndex;
+    const minCount = Math.min(...correctAnswerCounts);
+    const possibleIndices = correctAnswerCounts.reduce((acc, count, index) => {
+     if (count <= minCount && count < 6) {
+      acc.push(index);
+     }
+     return acc;
+    }, []);
 
-        // Shuffle the options array
-        for (var j = options.length - 1; j > 0; j--) {
-          var randomIndex = Math.floor(Math.random() * (j + 1));
-          [options[j], options[randomIndex]] = [options[randomIndex], options[j]];
-        }
-
-        var questionHTML = `
-            <div class="question" id="question${i}">
-                <p>${i}. ${num1} ÷ ${num2} =</p>
-                ${options.map(option => `
-                    <input type="radio" id="option${i}${options.indexOf(option)}" name="options${i}" value="${options.indexOf(option)}" onchange="optionSelected(${i}, '${options.indexOf(option)}')">
-                    <label for="option${i}${options.indexOf(option)}">${option.content}</label><br>
-                `).join('')}
-            </div>
-        `;
-
-        questionsGrid.innerHTML += questionHTML;
-      }
-
-      startTime = new Date().getTime(); // 记录开始时间
-      document.getElementById("checkButton").disabled = false; // 激活检查按钮
+    if (possibleIndices.length > 0) {
+     targetCorrectIndex = possibleIndices[Math.floor(Math.random() * possibleIndices.length)];
+    } else {
+     targetCorrectIndex = Math.floor(Math.random() * 4);
     }
 
-    function optionSelected(questionNumber, selectedOption) {
-      checkedOptions[questionNumber] = selectedOption;
+    // 将正确答案移动到目标索引
+    const correctAnswer = options.pop();
+    options.splice(targetCorrectIndex, 0, correctAnswer);
+
+    // 按照数值大小排序选项
+    options.sort((a, b) => parseFloat(a.content) - parseFloat(b.content));
+
+    // 找到排序后正确答案的索引
+    const correctIndexAfterSort = options.findIndex(option => option.isCorrect);
+    correctOptionIndices[i] = correctIndexAfterSort;
+    correctAnswerCounts[correctIndexAfterSort]++;
+
+    // 为了确保用户看到的选项顺序是随机的，我们再次进行洗牌
+    for (var j = options.length - 1; j > 0; j--) {
+     var randomIndex = Math.floor(Math.random() * (j + 1));
+     [options[j], options[randomIndex]] = [options[randomIndex], options[j]];
     }
 
-    function checkAnswers() {
-      var endTime = new Date().getTime(); // 记录结束时间
-      var timeElapsed = (endTime - startTime) / 1000; // 计算已用时间（秒）
+    // 找到最终的正确答案索引（洗牌后）
+    const finalCorrectIndex = options.findIndex(option => option.isCorrect);
+    correctOptionIndices[i] = finalCorrectIndex;
 
-      for (var i = 1; i <= 20; i++) {
-        var selectedOption = checkedOptions[i];
-        var correctOption = 0; // 每个题目的正确答案选项
-        var questionDiv = document.getElementById(`question${i}`);
-        var correctInput = document.getElementById(`option${i}${correctOption}`);
+    var questionHTML = `
+      <div class="question" id="question${i}">
+        <p>${i}. ${num1} ÷ ${num2}</p>
+        ${options.map((option, index) => `
+          <input type="radio" id="option${i}${index}" name="options${i}" value="${index}" onchange="optionSelected(${i}, '${index}')">
+          <label for="option${i}${index}">${option.content}</label><br>
+        `).join('')}
+      </div>
+    `;
 
-        if (selectedOption !== null && selectedOption === correctOption) {
-          questionDiv.classList.remove("incorrect");
-          questionDiv.classList.add("correct");
-          correctAnswersCount++; // 增加正确答案的数量
-        } else {
-          questionDiv.classList.remove("correct");
-          questionDiv.classList.add("incorrect");
+    questionsGrid.innerHTML += questionHTML;
+   }
 
-          // 勾选出正确答案选项并标绿
-          correctInput.checked = true;
-          correctInput.nextElementSibling.style.backgroundColor = "green";
-        }
-
-        // 禁用选项
-        document.querySelectorAll(`input[name="options${i}"]`).forEach(option => option.disabled = true);
-      }
-
-      const accuracy = (correctAnswersCount / 20) * 100;
-      const timeInSeconds = timeElapsed.toFixed(2);
-
-      let level;
-      if (timeInSeconds <= 240 && accuracy === 100) {
-          level = "优秀";
-      } else if (timeInSeconds <= 300 && accuracy === 100) {
-          level = "良好";
-      } else if (accuracy === 100) {
-          level = "及格";
-      } else {
-          level = "不及格";
-      }
-
-      document.getElementById("timer").textContent = `用时：${timeInSeconds} 秒，正确率：${accuracy.toFixed(2)}%，级别：${level}`;
+   console.log("正确答案分布:", correctAnswerCounts); // 可以在控制台查看分布情况
+   startTime = new Date().getTime(); // 记录开始时间
+   document.getElementById("checkButton").disabled = false; // 激活检查按钮
   }
+
+  function optionSelected(questionNumber, selectedOption) {
+   checkedOptions[questionNumber] = selectedOption;
+  }
+
+  function checkAnswers() {
+   var endTime = new Date().getTime(); // 记录结束时间
+   var timeElapsed = (endTime - startTime) / 1000; // 计算已用时间（秒）
+   correctAnswersCount = 0; // 重置正确答案计数器
+
+   for (var i = 1; i <= 20; i++) {
+    var selectedOption = checkedOptions[i];
+    // 从 correctOptionIndices 对象中获取当前问题的正确答案索引
+    var correctOptionIndex = correctOptionIndices[i];
+    var questionDiv = document.getElementById(`question${i}`);
+    // 根据正确的索引构建正确的 radio button 的 ID
+    var correctInputId = `option${i}${correctOptionIndex}`;
+    var correctInput = document.getElementById(correctInputId);
+    var correctLabel = correctInput ? correctInput.nextElementSibling : null;
+
+    // 获取当前选中的选项的 label 元素
+    var selectedLabel = null;
+    var selectedInput = null;
+    if (selectedOption !== undefined) {
+     var selectedInputId = `option${i}${selectedOption}`;
+     selectedInput = document.getElementById(selectedInputId);
+     selectedLabel = selectedInput ? selectedInput.nextElementSibling : null;
+    }
+
+    if (selectedOption !== undefined && parseInt(selectedOption) === correctOptionIndex) {
+     questionDiv.classList.remove("incorrect");
+     questionDiv.classList.add("correct");
+     correctAnswersCount++; // 增加正确答案的数量
+     if (correctLabel) {
+      correctLabel.style.backgroundColor = "green"; // 正确答案标绿
+      correctLabel.style.color = "white"; // 正确答案字体颜色改为白色
+      if (selectedLabel) {
+       selectedLabel.style.color = "white"; // 如果答案正确，选中项字体也变白
+      }
+     }
+    } else {
+     questionDiv.classList.remove("correct");
+
+     // 标记用户选择的错误答案
+     if (selectedOption !== undefined && selectedLabel) {
+      selectedLabel.style.backgroundColor = "red";
+      selectedLabel.style.color = "white";
+     }
+
+     // 勾选出正确答案选项并标绿
+     if (correctInput && correctLabel) {
+      correctInput.checked = true;
+      correctLabel.style.backgroundColor = "green";
+      correctLabel.style.color = "white"; // 将正确选项的字体颜色改为白色，更醒目
+     }
+
+     // 添加“选错”或“未作答”的标记
+     const indicatorDiv = document.createElement('div');
+     indicatorDiv.classList.add(selectedOption === undefined ? 'unanswered' : 'incorrect-answer');
+     indicatorDiv.textContent = selectedOption === undefined ? '未作答' : '选错'; // 恢复显示“选错”文字
+     questionDiv.appendChild(indicatorDiv);
+    }
+
+    // 禁用选项
+    document.querySelectorAll(`input[name="options${i}"]`).forEach(option => option.disabled = true);
+   }
+
+   const accuracy = (correctAnswersCount / 20) * 100;
+   const timeInSeconds = timeElapsed.toFixed(2);
+
+   let level;
+   if (timeInSeconds <= 240 && accuracy === 100) {
+     level = "优秀";
+   } else if (timeInSeconds <= 300 && accuracy === 100) {
+     level = "良好";
+   } else if (accuracy === 100) {
+     level = "及格";
+   } else {
+     level = "不及格";
+   }
+
+   document.getElementById("timer").textContent = `用时：${timeInSeconds} 秒，正确率：${accuracy.toFixed(2)}%，级别：${level}`;
+   document.getElementById("checkButton").disabled = true; // 检查后禁用按钮
+ }
 </script>
-
-
 </body>
 </html>
