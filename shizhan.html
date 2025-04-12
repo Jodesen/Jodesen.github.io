@@ -295,7 +295,7 @@
      // 添加“选错”或“未作答”的标记
      const indicatorDiv = document.createElement('div');
      indicatorDiv.classList.add(selectedOption === undefined ? 'unanswered' : 'incorrect-answer');
-     indicatorDiv.textContent = selectedOption === undefined ? '未作答' : '选错'; // 恢复显示“选错”文字
+     indicatorDiv.textContent = selectedOption === undefined ? '未作答' : '错误'; // 恢复显示“选错”文字
      questionDiv.appendChild(indicatorDiv);
     }
 
