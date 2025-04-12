@@ -5,129 +5,277 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>速算</title>
 <style>
-  body {
-    font-family: Arial, sans-serif;
-    background-color: #f0f0f0;
-    margin: 0;
-    padding: 0; /* 保持原有padding为0，让媒体查询控制 */
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
-  }
+ body {
+  font-family: Arial, sans-serif;
+  background-color: #f0f0f0;
+  margin: 0;
+  padding: 0; /* 保持原有padding为0，让媒体查询控制 */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+ }
 
-  .container {
-    text-align: center;
-    /* 可以给容器加一些初始内边距 */
-    padding: 20px;
-  }
+ .container {
+  text-align: center;
+  /* 可以给容器加一些初始内边距 */
+  padding: 20px;
+ }
 
-  .button-row {
-    display: flex;
-    justify-content: center;
-    align-items: center; /* 保持原有的对齐方式 */
-    flex-wrap: wrap; /* 允许换行，虽然我们主要用媒体查询控制 */
-  }
+ .button-row {
+  display: flex;
+  justify-content: center;
+  align-items: center; /* 保持原有的对齐方式 */
+  flex-wrap: wrap; /* 允许换行，虽然我们主要用媒体查询控制 */
+ }
 
-  .button-container {
-    margin: 10px;
-    display: flex;
-    flex-direction: column;
-    align-items: stretch; /* 默认让按钮等宽 */
-  }
+ .button-container {
+  margin: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch; /* 默认让按钮等宽 */
+ }
 
-  .button {
-    display: inline-block;
-    padding: 10px 20px;
-    margin: 5px 0;
-    font-size: 18px;
-    background-color: #3498db;
-    color: #ffffff;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.3s, transform 0.2s;
-    text-decoration: none; /* Remove underline */
-    text-align: center; /* Center button text */
-    min-width: 150px; /* 可以设置一个最小宽度 */
-  }
+ .button {
+  display: inline-block;
+  padding: 10px 20px;
+  margin: 5px 0;
+  font-size: 18px;
+  background-color: #3498db;
+  color: #ffffff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s, transform 0.2s;
+  text-decoration: none; /* Remove underline */
+  text-align: center; /* Center button text */
+  min-width: 150px; /* 可以设置一个最小宽度 */
+ }
 
-  .button:hover {
-    background-color: #2980b9;
-    transform: scale(1.05);
-  }
+ .button:hover {
+  background-color: #2980b9;
+  transform: scale(1.05);
+ }
 
 /* -- 开始添加的部分 -- */
 
 /* 媒体查询：当屏幕宽度小于或等于 600px 时应用以下样式 */
 @media (max-width: 600px) {
-  body {
-    /* 减少 body 的内边距，让内容更靠近屏幕边缘 */
-    padding: 10px;
-     /* 确保内容从顶部开始 */
-    align-items: flex-start;
-  }
+ body {
+  /* 减少 body 的内边距，让内容更靠近屏幕边缘 */
+  padding: 10px;
+  /* 确保内容从顶部开始 */
+  align-items: flex-start;
+ }
 
-  .container {
-     /* 可以稍微调整容器的内边距 */
-     padding: 15px;
-     width: 100%; /* 确保容器宽度利用屏幕 */
-     box-sizing: border-box; /* 防止padding导致溢出 */
-  }
+ .container {
+  /* 可以稍微调整容器的内边距 */
+  padding: 15px;
+  width: 100%; /* 确保容器宽度利用屏幕 */
+  box-sizing: border-box; /* 防止padding导致溢出 */
+ }
 
-  h1 {
-    /* 在小屏幕上可以适当减小标题字体大小 */
-    font-size: 24px;
-  }
+ h1 {
+  /* 在小屏幕上可以适当减小标题字体大小 */
+  font-size: 24px;
+ }
 
-  .button-row {
-    /* 将按钮容器从水平排列改为垂直堆叠 */
-    flex-direction: column;
-    /* 垂直堆叠时，让容器在交叉轴（现在是水平方向）居中 */
-    align-items: center;
-  }
+ .button-row {
+  /* 将按钮容器从水平排列改为垂直堆叠 */
+  flex-direction: column;
+  /* 垂直堆叠时，让容器在交叉轴（现在是水平方向）居中 */
+  align-items: center;
+ }
 
-  .button-container {
-    /* 让按钮容器宽度适应内容，并在垂直方向居中对齐按钮 */
-    width: 90%; /* 设置一个宽度百分比 */
-    max-width: 300px; /* 同时设置一个最大像素宽度 */
-    align-items: stretch; /* 让按钮在容器内宽度一致 */
-    margin: 10px 0; /* 调整垂直堆叠时的上下外边距 */
-  }
+ .button-container {
+  /* 让按钮容器宽度适应内容，并在垂直方向居中对齐按钮 */
+  width: 90%; /* 设置一个宽度百分比 */
+  max-width: 300px; /* 同时设置一个最大像素宽度 */
+  align-items: stretch; /* 让按钮在容器内宽度一致 */
+  margin: 10px 0; /* 调整垂直堆叠时的上下外边距 */
+ }
 
-  .button {
-    /* 移除固定宽度，让按钮宽度由容器和padding决定 */
-    /* width: 200px; */
-    padding: 12px 15px; /* 调整按钮内边距 */
-    font-size: 16px; /* 调整字体大小 */
-    margin: 5px 0; /* 保持按钮间的垂直间距 */
-    width: 100%; /* 让按钮宽度填满其容器 */
-    box-sizing: border-box; /* 防止padding导致溢出 */
-  }
+ .button {
+  /* 移除固定宽度，让按钮宽度由容器和padding决定 */
+  /* width: 200px; */
+  padding: 12px 15px; /* 调整按钮内边距 */
+  font-size: 16px; /* 调整字体大小 */
+  margin: 5px 0; /* 保持按钮间的垂直间距 */
+  width: 100%; /* 让按钮宽度填满其容器 */
+  box-sizing: border-box; /* 防止padding导致溢出 */
+ }
 }
 
 /* -- 结束添加的部分 -- */
+
+.quote {
+  margin: 15px 0;
+  font-size: 14px;
+  color: #2c3e50;
+  font-style: italic;
+  min-height: 40px;
+  text-align: center;
+  font-weight: bold; /* 添加此行，使字体加粗 */
+}
 
 </style>
 </head>
 <body>
 <div class="container">
-  <h1>Welcome to My Website！</h1>
-  <div class="button-row">
-    <div class="button-container">
-      <a href="chen.html" class="button">两位数乘一位数</a>
-      <a href="chu.html" class="button">多位数除两位数</a>
-    </div>
-    <div class="button-container">
-      <a href="jiajian2.html" class="button">三位数加减</a>
-
-      <a href="chu2.html" class="button">多位数除三位数</a>
-    </div>
-    <div class="button-container">
-      <a href="jiajian.html" class="button">两位数加减</a>
-      <a href="shizhan.html" class="button">实战</a>
-    </div>
+ <h1>Welcome to My Website！</h1>
+ <div id="bottomQuote" class="quote"></div>
+ <div class="button-row">
+  <div class="button-container">
+   <a href="chen.html" class="button">两位数乘一位数</a>
+   <a href="chu.html" class="button">多位数除两位数</a>
   </div>
+  <div class="button-container">
+   <a href="jiajian2.html" class="button">三位数加减</a>
+
+   <a href="chu2.html" class="button">多位数除三位数</a>
+  </div>
+  <div class="button-container">
+   <a href="jiajian.html" class="button">两位数加减</a>
+   <a href="shizhan.html" class="button">实战</a>
+  </div>
+ </div>
 </div>
+
+<script>
+  // 模拟读取 a.txt 文件内容
+  const aTxtQuotes = [
+   "公务员之路，非坦途，却满载希望与梦想",
+   "宁愿做过了后悔，也不要错过了后悔",
+   "咬定青山不放松，立根原在破岩中",
+   "明确的目标是我们走向成功的起点",
+   "备考就像在黑屋子里洗衣服，拼命揉搓的岁月终会换来光亮",
+   "失败不过是成功路上的垫脚石",
+   "努力不一定成功，但放弃一定失败",
+   "磨难是弱者的坟墓，强者的沃土",
+   "环境越是困难，精神越能发奋努力",
+   "考公不是上岸，而是跳进另一片海——但这次，你有船了",
+   "每次跌倒都是为了更好地站起来",
+   "淡泊名利，宁静致远",
+   "书山有路勤为径，学海无涯梦作舟",
+   "不怕万人阻挡，只怕自己投降",
+   "天地之大，没有方向再强大也只是单枪匹马",
+   "真正的英雄敢直面自己的软肋",
+   "若前方无路，我便踏出一条路；若天地不容，我便扭转这乾坤",
+   "寒门出身又怎样？能渡你的只有自己",
+   "这不仅仅是一场考试，更是对毅力与耐心的双重考验",
+   "人生因拼搏而精彩，未来由我们自己创造",
+   "无惧困难无畏挫折，经历磨难方见彩虹",
+   "每天的汗水都在为未来播种希望之花",
+   "宇宙的尽头不是考公，而是找到属于自己的时区",
+   "备考烦了累了，就想想父母殷切的目光",
+   "失败从不是答案，眼泪换不来上岸",
+   "你拼命考公是为了逃离内卷，但真正的赢家把卷藏在喝茶看报里",
+   "选择考公，就是选择责任与担当",
+   "用知识的光芒驱散迷茫，让梦想生根发芽",
+   "成功的秘诀在永不改变既定的目的",
+   "力量必须从自己身上寻找，你是真正的强者",
+   "年轻是我们唯一有权力编织梦想的时光",
+   "未曾失败的人恐怕也未曾成功过",
+   "备考路上布满荆棘，最美的风景总在风雨后",
+   "拥有坚定的信念才能披荆斩棘",
+   "把挑战当作成长的阶梯，走向更高舞台",
+   "你今后的路还很长，永远不要放弃",
+   "人生最大的失败就是放弃",
+   "让努力成为习惯，用实力证明价值",
+   "山再高也能攀顶，路再长也有尽头",
+   "现在的埋头苦读是为离岗位更近一步",
+   "真正的稳定是特权也是枷锁，上岸后自有答案",
+   "考公路上没有遮天树，输赢全在自己手里",
+   "心随朗月高，志与秋霜洁",
+   "临渊羡鱼，不如退而结网",
+   "道虽弥，不行不至；事虽小，不为不成",
+   "自信人生二百年，会当水击三千里",
+   "乐民之乐者，民亦乐其乐",
+   "治以道德为上，行以仁义为本",
+   "草木蔓发，春山可望",
+   "穷则变，变则通，通则久",
+   "为天地立心，为生民立命",
+   "不谋全局者，不足谋一域",
+   "天行健，君子以自强不息",
+   "潮平两岸阔，风正一帆悬",
+   "雄关漫道真如铁，而今迈步从头越",
+   "民为邦本，本固邦宁",
+   "知屋漏者在宇下，知政失者在草野",
+   "公务员考试=50%实力+30%策略+20%运气",
+   "失败是成功的前奏曲，勇敢迎接它",
+   "你拼命揉搓的岁月终会换来光亮",
+   "每天叫醒你的不是闹钟，而是追梦的心",
+   "备考是职业选择而非人生赌注",
+   "真正阻碍我们的，是内心提前崩塌的桥梁",
+   "当你习惯于悲观时，它就像乐观一样愉快",
+   "未曾分享的努力时光终将照亮前路",
+   "考公真正的价值是给你“允许平凡”的许可证",
+   "用智慧和勇气征服不可能的挑战",
+   "把青春热血洒在征途上，践行初心使命",
+   "人生是旷野不是轨道，考公只是千万活法之一",
+   "成功者绝不放弃，放弃者绝不成功",
+   "高峰只对攀登者有意义",
+   "力量藏在喝茶看报的智慧里",
+   "备考不是知识较量，而是人性考验",
+   "能忍住不打游戏证明有延迟满足能力",
+   "早起刷题说明比90%的人自律",
+   "每年百万人抢饭碗，考不上才是常态",
+   "押题不如押趋势，背模板不如建思维模型",
+   "考场较量的是崩溃临界点前重建秩序的能力",
+   "考公路上布满荆棘，但风景在风雨后",
+   "汗水铺就成功路，曙光在前等你拥抱",
+   "人生是杯苦茶，越喝越苦却越来越香",
+   "骄傲是断了引线的风筝稍纵即逝",
+   "不要害怕失败，那是成功之母",
+   "让努力成为日常，迎接更大挑战",
+   "现在开始行动，别让拖延阻碍步伐",
+   "把每一天当最后一天学习，不留遗憾",
+   "你的名字终将闪耀在录取榜上",
+   "结果如何不重要，过程塑造更好的你",
+   "以梦为马不负韶华，青春在奋斗中灿烂",
+   "备考虽孤独，全世界都在为你让路",
+   "成功需要汗水交换，而非偏爱捷径",
+   "考公考的是系统兼容性，不是分数",
+   "当你迷失在黑暗中，前行是唯一方向",
+   "奋斗是会成瘾的，一旦开始就不会停下脚步",
+   "笔耕字字蘸心血，夜灯点点照饥寒，这样的付出终将照亮未来",
+   "终身努力便成天才，比起成功者我们只差\"坚持\"二字",
+   "每个备考的深夜都将在胜利曙光下变得意义非凡",
+   "把挑战当作成长的阶梯，一步步走向更高舞台",
+   "承认失败但永不承认放弃，这才是真正的强者逻辑",
+   "备考是职业选择而非人生赌注，保持清醒才能稳步前行",
+   "年轻气盛时勇往直前，方显青春本色",
+   "那些默默奋斗的岁月终将汇聚成耀眼的光芒",
+   "当你选择义无反顾，整个世界都会为你让路",
+   "在成为公务员之前，首先要成为自己的救世主",
+   "备考路上没有遮天树，唯有自己才是渡船人",
+   "即使跌入低谷，未来只剩向上攀爬的无限可能",
+   "选择基层就要扎根沃土，在平凡中创造非凡",
+   "备考是持久战，穿好耐心与毅力的最佳跑鞋",
+   "真正的荣耀来自血与泪的洗礼，苦与痛的升华",
+   "带着兄弟恋人共同备考，苦难路上更显情谊珍贵",
+   "没有退路时反而能激发出惊人潜力",
+   "崩溃临界点前的秩序重建能力决定考场胜负",
+   "朝三暮四不如锁定目标，专注才能突破重围",
+   "不要做被埋没的珍珠，甘当铺路的泥土",
+   "治大国如烹小鲜，备考亦需精心调配火候",
+   "真正阻碍我们的，是内心提前崩塌的桥梁",
+   "现在开始行动，让每一天都成为上岸的基石",
+   "选择公考就是选择把青春献给人民的承诺",
+   "用宏观视角看待人生起伏，低谷恰是腾飞起点",
+   "备考路上布满荆棘，但最美的花开在坚持尽头",
+   "公务员的稳定是特权也是责任，想清再出发",
+   "真正英雄敢于直面申论的软肋和行测的短板",
+   "把每次模考当作实战，用汗水浇筑上岸之路"
+  ];
+  
+  function showBottomQuote() {
+   const randomIndex = Math.floor(Math.random() * aTxtQuotes.length);
+   document.getElementById('bottomQuote').innerHTML = aTxtQuotes[randomIndex];
+  }
+  
+  // 页面加载时显示底部的 quote
+  showBottomQuote();
+  </script>
 </body>
 </html>
