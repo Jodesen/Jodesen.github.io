@@ -243,39 +243,38 @@
       tbody.innerHTML = ''; // Clear previous problems
 
       for (var i = 0; i < numToGenerate; i++) {
-          // --- Specific Logic for this page: 3-digit +/- 3-digit ---
-          var operator = Math.random() < 0.5 ? '+' : '-';
-          var num1 = Math.floor(Math.random() * 900) + 100; // Generate 100 to 999
-          var num2 = Math.floor(Math.random() * 900) + 100; // Generate 100 to 999
-
-          // Ensure subtraction results are non-negative
-          if (operator === '-' && num1 < num2) {
-              var temp = num1;
-              num1 = num2;
-              num2 = temp;
+          // --- 生成四个两位数的相加减 ---
+          var numbers = [];
+          for (var j = 0; j < 4; j++) {
+            numbers.push(Math.floor(Math.random() * 90) + 10); // 生成10到99的两位数
           }
 
-          var result = (operator === '+') ? (num1 + num2) : (num1 - num2);
-          // --- End of Specific Logic ---
+          var operators = [];
+          for (var j = 0; j < 3; j++) {
+            operators.push(Math.random() < 0.5 ? '+' : '-'); // 随机生成加或减
+          }
 
+          // 计算结果
+          var result = numbers[0];
+          for (var j = 0; j < 3; j++) {
+            result = operators[j] === '+' ? result + numbers[j + 1] : result - numbers[j + 1];
+          }
 
+          // --- 创建题目行 ---
           var newRow = tbody.insertRow();
           var cell = newRow.insertCell();
 
-          const problemText = document.createTextNode(`${i + 1}. ${num1} ${operator} ${num2} = `);
+          const problemText = document.createTextNode(
+            `${i + 1}. ${numbers[0]} ${operators[0]} ${numbers[1]} ${operators[1]} ${numbers[2]} ${operators[2]} ${numbers[3]} = `
+          );
           cell.appendChild(problemText);
 
           const inputElement = document.createElement("input");
           inputElement.type = "number";
-          // --- Store the full result as the answer ---
-          inputElement.dataset.answer = result;
-          // ---
+          inputElement.dataset.answer = result; // 存储正确答案
           inputElement.classList.add("input");
           inputElement.setAttribute("aria-label", `Answer for problem ${i + 1}`);
-          // --- Include the oninput event handler ---
           inputElement.setAttribute("oninput", "checkAnswer(event)");
-          // ---
-
           cell.appendChild(inputElement);
       }
 
@@ -424,15 +423,15 @@
 </head>
 <body>
 
-  <h1>三位数加减 练习</h1> <div class="controls-container">
+  <h1>多位数加减 练习</h1> <div class="controls-container">
       <div class="select-container">
           <label for="numProblemsSelect">题目数量：</label>
           <select id="numProblemsSelect">
-              <option value="10">10</option>
+              <option value="10"  selected>10</option>
               <option value="15">15</option>
-              <option value="20">20</option>
+              <option value="20" >20</option>
               <option value="30">30</option>
-              <option value="40" selected>40</option> <option value="50">50</option>
+              <option value="40">40</option> <option value="50">50</option>
           </select>
       </div>
       <div>
@@ -447,7 +446,7 @@
     </table>
   </div>
 
-  <p id="instructions">【说明】：请从上方选择题目数量。对于每个题目（**三位数** 加或减 **三位数**），请在右侧输入框中输入**完整的计算结果**。</p>
+  <p id="instructions">【说明】：请从上方选择题目数量。对于每个题目，请在右侧输入框中输入**完整的计算结果**。</p>
 
   <div id="correctAnswers" style="display: none;">
       </div>
