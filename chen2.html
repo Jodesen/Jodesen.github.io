@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>两位数乘两位数</title>
+  <title>三位数加减</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"> <style>
     /* --- Base Styles (Copied & Adapted) --- */
     body {
@@ -99,7 +99,7 @@
     input[type="number"].input { /* Use class selector */
       padding: 6px 8px;
       font-size: 16px;
-      width: 70px;
+      width: 80px; /* Increased width slightly for 3/4 digit answers */
       text-align: center;
       border: 1px solid #ccc;
       border-radius: 4px;
@@ -203,7 +203,7 @@
       input[type="number"].input {
           padding: 6px;
           font-size: 15px;
-          width: 65px;
+          width: 75px; /* Adjust mobile width */
           margin-left: 10px;
       }
       #instructions {
@@ -243,31 +243,38 @@
       tbody.innerHTML = ''; // Clear previous problems
 
       for (var i = 0; i < numToGenerate; i++) {
-          // --- 两位数乘两位数逻辑 ---
-          var num1 = Math.floor(Math.random() * 90) + 10; // 生成10到99的两位数
-          var num2 = Math.floor(Math.random() * 90) + 10; // 生成10到99的两位数
+          // --- 生成四个两位数的相加减 ---
+          var numbers = [];
+          for (var j = 0; j < 4; j++) {
+            numbers.push(Math.floor(Math.random() * 90) + 10); // 生成10到99的两位数
+          }
 
-          var result = num1 * num2; // 计算乘积
-          // --- 结束逻辑 ---
+          var operators = [];
+          for (var j = 0; j < 3; j++) {
+            operators.push(Math.random() < 0.5 ? '+' : '-'); // 随机生成加或减
+          }
 
+          // 计算结果
+          var result = numbers[0];
+          for (var j = 0; j < 3; j++) {
+            result = operators[j] === '+' ? result + numbers[j + 1] : result - numbers[j + 1];
+          }
 
+          // --- 创建题目行 ---
           var newRow = tbody.insertRow();
           var cell = newRow.insertCell();
 
-          const problemText = document.createTextNode(`${i + 1}. ${num1} × ${num2} = `); // Use × symbol
+          const problemText = document.createTextNode(
+            `${i + 1}. ${numbers[0]} ${operators[0]} ${numbers[1]} ${operators[1]} ${numbers[2]} ${operators[2]} ${numbers[3]} = `
+          );
           cell.appendChild(problemText);
 
           const inputElement = document.createElement("input");
           inputElement.type = "number";
-          // --- Store the full product as the answer ---
-          inputElement.dataset.answer = result;
-          // ---
+          inputElement.dataset.answer = result; // 存储正确答案
           inputElement.classList.add("input");
           inputElement.setAttribute("aria-label", `Answer for problem ${i + 1}`);
-          // --- Include the oninput event handler ---
           inputElement.setAttribute("oninput", "checkAnswer(event)");
-          // ---
-
           cell.appendChild(inputElement);
       }
 
@@ -283,8 +290,8 @@
        if (inputs.length > 0) {
            inputs[0].focus();
        }
-     // --- 添加验证答案按钮并放置在 instructions 标签前面 ---
-     var problemTableContainer = document.getElementById("problemTableContainer");
+           // --- 添加验证答案按钮并放置在 instructions 标签前面 ---
+    var problemTableContainer = document.getElementById("problemTableContainer");
     var instructionsElement = document.getElementById("instructions");
     var verifyButton = document.createElement("button");
     verifyButton.textContent = "验证答案";
@@ -301,7 +308,6 @@
     // --- Keep the original checkAnswer function ---
     function checkAnswer(event) {
       var input = event.target;
-      // Reset background color if user types something
       if (input.value !== "") {
          input.style.backgroundColor = "";
       }
@@ -327,22 +333,21 @@
       for (var i = 0; i < inputs.length; i++) {
           var input = inputs[i];
           // --- Specific Logic: Compare full integer answers ---
-          var userAnswer = input.value.trim(); // Get as string first
-          var correctAnswer = input.dataset.answer; // Get answer as string
+          var userAnswer = input.value.trim();
+          var correctAnswer = input.dataset.answer;
 
-          // Check if input is a valid number and matches the correct answer string
           if (userAnswer !== "" && !isNaN(parseInt(userAnswer)) && userAnswer === correctAnswer) {
                 input.style.backgroundColor = "lightgreen";
                 correctCount++;
           } else {
-                input.style.backgroundColor = "pink"; // Mark incorrect or empty as pink
+                input.style.backgroundColor = "pink";
                 let problemTextNode = Array.from(input.parentNode.childNodes).find(node => node.nodeType === Node.TEXT_NODE);
                 let problemText = problemTextNode ? problemTextNode.textContent.trim() : `题目 ${i+1}`;
                 problemText = problemText.replace('=', '').trim();
                 incorrectProblems.push({
                     problem: problemText,
                     correctAnswer: correctAnswer,
-                    userAnswer: userAnswer === '' ? '未作答' : userAnswer // Show user's input or '未作答'
+                    userAnswer: userAnswer === '' ? '未作答' : userAnswer
                 });
           }
           // ---
@@ -374,7 +379,6 @@
           correctAnswersDiv.appendChild(incorrectTitleDiv);
           for (var j = 0; j < incorrectProblems.length; j++) {
               var problemDiv = document.createElement("div");
-               // Show the full problem, user answer, and correct answer
                problemDiv.innerHTML = `${incorrectProblems[j].problem} = <span style="color: red; text-decoration: line-through;">${incorrectProblems[j].userAnswer}</span> (正确: <strong>${incorrectProblems[j].correctAnswer}</strong>)`;
               problemDiv.style.marginBottom = "3px";
               correctAnswersDiv.appendChild(problemDiv);
@@ -419,13 +423,13 @@
 </head>
 <body>
 
-  <h1>两位数乘两位数 练习</h1> <div class="controls-container">
+  <h1>多位数加减 练习</h1> <div class="controls-container">
       <div class="select-container">
           <label for="numProblemsSelect">题目数量：</label>
           <select id="numProblemsSelect">
               <option value="10"  selected>10</option>
               <option value="15">15</option>
-              <option value="20">20</option>
+              <option value="20" >20</option>
               <option value="30">30</option>
               <option value="40">40</option> <option value="50">50</option>
           </select>
@@ -442,7 +446,7 @@
     </table>
   </div>
 
-  <p id="instructions">【说明】：请从上方选择题目数量。对于每个题目（两位数 × 两位数），请在右侧输入框中输入**完整的乘积**。例如：37 × 51 = 1887，请输入 1887。</p>
+  <p id="instructions">【说明】：请从上方选择题目数量。对于每个题目，请在右侧输入框中输入**完整的计算结果**。</p>
 
   <div id="correctAnswers" style="display: none;">
       </div>
