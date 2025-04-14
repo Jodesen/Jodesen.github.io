@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>三位数加减</title>
+  <title>多位数加减</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"> <style>
     /* --- Base Styles (Copied & Adapted) --- */
     body {
@@ -243,21 +243,23 @@
       tbody.innerHTML = ''; // Clear previous problems
 
       for (var i = 0; i < numToGenerate; i++) {
-          // --- 生成四个两位数的相加减 ---
+          // --- 生成四个两位数的相加减，确保结果不为负数 ---
           var numbers = [];
           for (var j = 0; j < 4; j++) {
             numbers.push(Math.floor(Math.random() * 90) + 10); // 生成10到99的两位数
           }
 
           var operators = [];
-          for (var j = 0; j < 3; j++) {
-            operators.push(Math.random() < 0.5 ? '+' : '-'); // 随机生成加或减
-          }
-
-          // 计算结果
           var result = numbers[0];
+
           for (var j = 0; j < 3; j++) {
-            result = operators[j] === '+' ? result + numbers[j + 1] : result - numbers[j + 1];
+            if (Math.random() < 0.5 && result >= numbers[j + 1]) {
+              operators.push('-'); // 选择减法，确保结果不为负数
+              result -= numbers[j + 1];
+            } else {
+              operators.push('+'); // 选择加法
+              result += numbers[j + 1];
+            }
           }
 
           // --- 创建题目行 ---
