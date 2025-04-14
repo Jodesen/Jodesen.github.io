@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
+    <title>每日简报 (可放大)</title>
+    <style>
+        /* Basic Reset & Body Styles */
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            margin: 0; 
+            padding: 15px; 
+            background-color: #f4f4f4; 
+            line-height: 1.6;
+        }
+
+        /* Main Content Wrapper */
+        .content-wrapper {
+            max-width: 700px; 
+            margin: 10px auto; 
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #333;
+            font-size: 1.8em; 
+        }
+
+        /* Text Box Styling */
+        .briefing-box {
+            border: 1px solid #e0e0e0;
+            padding: 15px;
+            margin-bottom: 25px;
+            text-align: center;
+            background-color: #f9f9f9;
+            border-radius: 5px;
+            font-size: 1.1em;
+            color: #555;
+        }
+
+        /* Image Container Styling (No border/padding, acts as mask) */
+        .image-container {
+            /* REMOVED: border: 1px solid #e0e0e0; */
+            /* REMOVED: padding: 10px; */
+            min-height: 100px; /* Minimum height for loading/error state */
+            background-color: #f0f0f0; /* Background for loading/error state */
+            display: flex; /* Still use flex to center error message if needed */
+            justify-content: center;
+            align-items: center;
+            border-radius: 5px; /* Apply rounding to the container */
+            overflow: hidden;   /* Clip the image to the container's bounds/radius */
+            margin-bottom: 15px; 
+        }
+
+        /* Briefing Image Styling (Fills Container) */
+        .briefing-image {
+            display: block;  /* Important for filling */
+            width: 100%;     /* Make image fill container width */
+            height: auto;    /* Maintain aspect ratio */
+            cursor: pointer; 
+            transition: transform 0.2s ease; 
+            /* REMOVED: border-radius: 3px; (Container handles radius now) */
+        }
+        .briefing-image:hover {
+             transform: scale(1.02); 
+        }
+        
+        .image-load-error {
+            color: red;
+            font-size: 0.9em;
+            text-align: center;
+            padding: 10px; /* Padding for the error text itself */
+        }
+
+        /* --- Lightbox / Modal Styles (Unchanged) --- */
+        .lightbox-overlay {
+            display: none; 
+            position: fixed; 
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: rgba(0, 0, 0, 0.8); 
+            z-index: 1000; 
+            cursor: pointer; 
+            padding: 20px; 
+            box-sizing: border-box; 
+
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .lightbox-content {
+             position: relative; 
+             display: flex; 
+             justify-content: center;
+             align-items: center;
+             width: 100%;
+             height: 100%;
+        }
+        .lightbox-image {
+            display: block;
+            max-width: 95%;   
+            max-height: 90%;  
+            object-fit: contain; 
+            background-color: #fff; 
+            border-radius: 4px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            cursor: default; 
+        }
+        .lightbox-close {
+            position: absolute;
+            top: 10px; right: 15px;
+            color: white;
+            font-size: 35px;
+            font-weight: bold;
+            cursor: pointer;
+            line-height: 1;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+            z-index: 1001; 
+        }
+        .lightbox-close:hover { color: #ccc; }
+
+        /* Media Queries (Unchanged) */
+        @media (max-width: 600px) {
+            body { padding: 10px; }
+            .content-wrapper { padding: 15px; margin: 5px auto; }
+             h1 { font-size: 1.5em; }
+            .briefing-box { font-size: 1em; padding: 12px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="content-wrapper">
+        <div class="briefing-box">
+            每天60秒读懂世界简报
+        </div>
+
+        <div class="image-container" id="imageContainer">
+            <img src="https://api.03c3.cn/api/zb" 
+                 alt="每日早报图片 - 点击放大" 
+                 class="briefing-image"
+                 id="briefingImage"
+                 onerror="handleImageError(this)"> 
+        </div>
+    </div>
+
+    <div id="lightboxOverlay" class="lightbox-overlay" style="display: none;">
+        <div class="lightbox-content">
+            <span class="lightbox-close" id="lightboxClose">&times;</span>
+            <img src="" alt="放大后的图片" id="lightboxImage" class="lightbox-image">
+        </div>
+    </div>
+
+    <script>
+        // 获取相关元素
+        const briefingImage = document.getElementById('briefingImage');
+        const lightboxOverlay = document.getElementById('lightboxOverlay');
+        const lightboxImage = document.getElementById('lightboxImage');
+        const lightboxClose = document.getElementById('lightboxClose');
+
+        let scale = 1; // 初始缩放比例
+        let startDistance = 0; // 双指触控的初始距离
+        let translateX = 0; // 水平平移
+        let translateY = 0; // 垂直平移
+        let startX = 0; // 触摸起始点 X
+        let startY = 0; // 触摸起始点 Y
+
+        // 图片加载失败处理函数
+        function handleImageError(imageElement) {
+            console.error("Failed to load image:", imageElement.src);
+            imageElement.style.display = 'none';
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'image-load-error';
+            errorDiv.textContent = '图片加载失败，请检查网络或刷新页面。';
+            const imageContainer = document.getElementById('imageContainer');
+            if (!imageContainer.querySelector('.image-load-error')) {
+                imageContainer.appendChild(errorDiv);
+            }
+        }
+
+        // 打开 Lightbox 的函数
+        function openLightbox() {
+            if (briefingImage.style.display !== 'none' && briefingImage.naturalWidth > 0) {
+                const imageUrl = briefingImage.src;
+                lightboxImage.src = imageUrl;
+                lightboxOverlay.style.display = 'flex'; // 显示 Lightbox
+                document.body.style.overflow = 'hidden'; // 禁止页面滚动
+            } else {
+                console.log("Cannot enlarge image because it failed to load.");
+            }
+        }
+
+        // 关闭 Lightbox 的函数
+        function closeLightbox() {
+            lightboxOverlay.style.display = 'none'; // 隐藏 Lightbox
+            lightboxImage.src = ''; // 清空图片
+            document.body.style.overflow = ''; // 恢复页面滚动
+            scale = 1; // 重置缩放比例
+            translateX = 0; // 重置水平平移
+            translateY = 0; // 重置垂直平移
+            lightboxImage.style.transform = `scale(${scale}) translate(0, 0)`; // 重置图片缩放和平移
+        }
+
+        // 鼠标滚轮缩放图片
+        function zoomImage(event) {
+            event.preventDefault();
+            const zoomStep = 0.5; // 缩放步长
+            if (event.deltaY < 0) {
+                scale += zoomStep; // 放大
+            } else {
+                scale = Math.max(1, scale - zoomStep); // 缩小，最小为 1
+            }
+            lightboxImage.style.transform = `scale(${scale}) translate(${translateX}px, ${translateY}px)`;
+        }
+
+        // 触摸开始事件（记录双指初始距离或单指起始点）
+        function handleTouchStart(event) {
+            if (event.touches.length === 2) {
+                const touch1 = event.touches[0];
+                const touch2 = event.touches[1];
+                startDistance = Math.hypot(
+                    touch2.pageX - touch1.pageX,
+                    touch2.pageY - touch1.pageY
+                );
+            } else if (event.touches.length === 1) {
+                startX = event.touches[0].pageX;
+                startY = event.touches[0].pageY;
+            }
+        }
+
+        // 触摸移动事件（根据双指距离调整缩放比例或单指滑动调整平移）
+        function handleTouchMove(event) {
+            if (event.touches.length === 2) {
+                const touch1 = event.touches[0];
+                const touch2 = event.touches[1];
+                const currentDistance = Math.hypot(
+                    touch2.pageX - touch1.pageX,
+                    touch2.pageY - touch1.pageY
+                );
+                const zoomStep = 0.005; // 缩放步长
+                scale += (currentDistance - startDistance) * zoomStep;
+                scale = Math.max(1, scale); // 确保最小缩放比例为 1
+                lightboxImage.style.transform = `scale(${scale}) translate(${translateX}px, ${translateY}px)`;
+                startDistance = currentDistance; // 更新起始距离
+            } else if (event.touches.length === 1) {
+                const currentX = event.touches[0].pageX;
+                const currentY = event.touches[0].pageY;
+                translateX += currentX - startX;
+                translateY += currentY - startY;
+                lightboxImage.style.transform = `scale(${scale}) translate(${translateX}px, ${translateY}px)`;
+                startX = currentX;
+                startY = currentY;
+            }
+        }
+
+        // 添加事件监听
+        if (briefingImage) {
+            briefingImage.addEventListener('click', openLightbox); // 点击图片打开 Lightbox
+        }
+        if (lightboxClose) {
+            lightboxClose.addEventListener('click', function(event) {
+                event.stopPropagation(); // 阻止事件冒泡
+                closeLightbox();
+            });
+        }
+        if (lightboxOverlay) {
+            lightboxOverlay.addEventListener('click', function(event) {
+                if (event.target === lightboxOverlay) {
+                    closeLightbox(); // 点击遮罩层关闭 Lightbox
+                }
+            });
+        }
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape' && lightboxOverlay.style.display === 'flex') {
+                closeLightbox(); // 按下 Escape 键关闭 Lightbox
+            }
+        });
+
+        // 鼠标滚轮缩放监听
+        lightboxOverlay.addEventListener('wheel', zoomImage);
+
+        // 触摸事件监听（移动端双指缩放和平移）
+        lightboxOverlay.addEventListener('touchstart', handleTouchStart);
+        lightboxOverlay.addEventListener('touchmove', handleTouchMove);
+    </script>
+
+</body>
+</html>
