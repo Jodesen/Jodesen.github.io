@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>舒尔特方格找数训练</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+    <style>
+        /* Keep essential custom styles, adjust others */
+        body {
+            background-color: #f8f9fa; /* Bootstrap light background */
+            padding-top: 20px;
+            padding-bottom: 20px;
+        }
+
+        /* Center the Schulte grid itself within its column */
+        #schulte-grid {
+            display: grid;
+            gap: 4px;
+            border: 2px solid #adb5bd;
+            padding: 5px;
+            background-color: #e9ecef;
+            user-select: none;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            /* 移除 margin-left 和 margin-right */
+            /* margin-left: auto; */
+            /* margin-right: auto; */
+            /* 移除 margin-top 和 margin-bottom (由父级控制) */
+            /* margin-top: 1rem; */
+            /* margin-bottom: 1rem; */
+            overflow-x: auto;
+            /* 宽度将由内部格子决定 */
+        }
+
+        #grid-placeholder {
+            color: #6c757d; /* Bootstrap secondary text color */
+            padding: 20px;
+            text-align: center;
+            font-style: italic;
+            /* Ensure placeholder spans grid if grid display is active but empty */
+            grid-column: 1 / -1;
+        }
+
+        .grid-cell {
+            /* Base cell style */
+            position: relative; /* Needed for pseudo-element */
+            overflow: hidden;  /* Needed for pseudo-element */
+            border: 1px solid #ced4da; /* Bootstrap input border color */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            cursor: pointer;
+            background-color: #fff;
+            transition: background-color 0.1s ease,
+                        transform 0.1s ease,
+                        color 0.3s ease-out 0.1s; /* Text color transition */
+            color: #212529; /* Bootstrap default text color */
+            z-index: 1; /* Keep text above pseudo-element */
+        }
+
+        /* Expanding background animation */
+        .grid-cell::before {
+            content: "";
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-color: #198754; /* Bootstrap success green */
+            border-radius: 50%;
+            transform: scale(0);
+            transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1),
+                        border-radius 0.1s linear 0.25s;
+            z-index: -1; /* Place behind text */
+        }
+
+        /* Hover effect (non-correct cells) */
+        .grid-cell:hover:not(.correct) {
+            background-color: #e9ecef; /* Bootstrap lighter gray */
+            transform: scale(1.03);
+        }
+
+        /* Correct cell style */
+        .grid-cell.correct {
+            color: white; /* Text color change */
+            cursor: default;
+        }
+
+        /* Trigger animation on correct */
+        .grid-cell.correct::before {
+            transform: scale(1.5);
+            border-radius: 0;
+        }
+
+        /* Message styles */
+        #message {
+            min-height: 24px; /* Keep min-height */
+            font-weight: bold;
+            font-size: 1rem; /* Bootstrap base font size */
+            margin-top: 1rem;
+        }
+        /* Use Bootstrap text color classes in JS if needed */
+        /* .text-success {} */
+        /* .text-danger {} */
+
+        /* Record list adjustments */
+        #record-list {
+            max-height: 250px; /* Slightly increase max height */
+            overflow-y: auto;
+        }
+        /* Style list items within Bootstrap list-group */
+        #record-list .list-group-item {
+            padding-top: 0.5rem;
+            padding-bottom: 0.5rem;
+            font-size: 0.9rem; /* Slightly smaller font for records */
+        }
+         #record-list .record-time {
+             float: right; /* Keep time floated right */
+             font-weight: bold;
+             color: #0d6efd; /* Bootstrap primary blue */
+         }
+         #no-records.list-group-item { /* Style the 'no records' item */
+             color: #6c757d;
+             font-style: italic;
+         }
+    </style>
+</head>
+<body>
+
+<div class="container mt-4">
+    <div class="row justify-content-center gy-4">
+
+        <div class="col-lg-7 col-md-10">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h1 class="card-title text-center mb-3 h3">舒尔特方格找数训练</h1>
+                    <div class="controls d-flex flex-wrap justify-content-center align-items-center gap-2 mb-3">
+                        <label for="size-select" class="form-label mb-0 fw-bold">难度:</label>
+                        <select class="form-select form-select-sm w-auto" id="size-select">
+                            <option value="4">4 x 4</option>
+                            <option value="5" selected>5 x 5</option>
+                            <option value="6">6 x 6</option>
+                            <option value="7">7 x 7</option>
+                            <option value="8">8 x 8</option>
+                        </select>
+                        <button class="btn btn-primary btn-sm" id="start-btn"><i class="bi bi-play-fill"></i> 开始游戏</button>
+                        <button class="btn btn-danger btn-sm" id="reset-btn" disabled><i class="bi bi-arrow-clockwise"></i> 重新开始</button>
+                        <div id="timer" class="badge bg-secondary text-wrap fs-6 fw-normal ms-md-auto">时间: 0.00 秒</div>
+                    </div>
+
+                    <div class="d-flex justify-content-center mt-3 mb-3"> <div id="schulte-grid">
+                        <div id="grid-placeholder">请选择难度并点击“开始游戏”</div>
+                   </div>
+               </div>
+
+                    <div id="message" class="text-center"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-5 col-md-8">
+             <div class="card shadow-sm">
+                <div class="card-body">
+                    <h2 class="card-title text-center h5 mb-3">训练记录</h2>
+                    <ul class="list-group list-group-flush" id="record-list">
+                        <li class="list-group-item" id="no-records">暂无记录</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+    </div> </div> <script>
+    // --- DOM 元素引用 (no change needed here) ---
+    const gridElement = document.getElementById('schulte-grid');
+    const timerElement = document.getElementById('timer');
+    const startBtn = document.getElementById('start-btn');
+    const resetBtn = document.getElementById('reset-btn');
+    const messageElement = document.getElementById('message');
+    const sizeSelect = document.getElementById('size-select');
+    const gridPlaceholder = document.getElementById('grid-placeholder');
+    const recordListElement = document.getElementById('record-list');
+    const noRecordsElement = document.getElementById('no-records'); // Keep reference if needed
+
+    // --- Game State Variables (no change needed) ---
+    let numbers = [];
+    let currentNumber = 1;
+    let timerInterval = null;
+    let startTime = 0;
+    let gameActive = false;
+    let currentGridSize = 0;
+    let lastCorrectCell = null;
+    const MAX_RECORDS = 15;
+    const RECORDS_KEY = 'schulteRecords';
+
+    // --- Functions (Minimal changes needed, mainly message classes) ---
+
+    function generateShuffledNumbers(size) { /* ... no change ... */
+        const totalNumbers = size * size;
+        const nums = Array.from({ length: totalNumbers }, (_, i) => i + 1);
+        for (let i = nums.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [nums[i], nums[j]] = [nums[j], nums[i]];
+        }
+        return nums;
+    }
+
+    function createGrid(size) { /* ... no change ... */
+        gridElement.innerHTML = '';
+        // gridPlaceholder might not exist if grid is immediately filled, handle potentially null
+        if (gridPlaceholder) gridPlaceholder.style.display = 'none';
+        gridElement.style.display = 'grid'; // Ensure grid display is set
+        messageElement.textContent = '';
+        messageElement.className = 'text-center'; // Reset message classes
+        lastCorrectCell = null;
+
+        let cellSize, fontSize;
+        if (size <= 4) { cellSize = 60; fontSize = 24; }
+        else if (size === 5) { cellSize = 55; fontSize = 22; }
+        else if (size === 6) { cellSize = 50; fontSize = 20; }
+        // 稍微再调整大尺寸的大小
+        else if (size === 7) { cellSize = 43; fontSize = 17; } // 从 45/18 减小
+        else { cellSize = 38; fontSize = 15; } // 从 40/16 减小
+
+
+        gridElement.style.gridTemplateColumns = `repeat(${size}, ${cellSize}px)`;
+        numbers = generateShuffledNumbers(size);
+
+        numbers.forEach(number => {
+            const cell = document.createElement('div');
+            cell.classList.add('grid-cell');
+            cell.style.width = `${cellSize}px`;
+            cell.style.height = `${cellSize}px`;
+            cell.style.fontSize = `${fontSize}px`;
+            cell.textContent = number;
+            cell.dataset.number = number;
+            cell.addEventListener('click', handleCellClick);
+            gridElement.appendChild(cell);
+        });
+     }
+
+    function handleCellClick(event) { /* ... no change in logic ... */
+        if (!gameActive) return;
+        const clickedCell = event.target.closest('.grid-cell'); // Ensure we target the cell itself
+        if (!clickedCell || clickedCell.classList.contains('correct')) return;
+
+        const clickedNumber = parseInt(clickedCell.dataset.number, 10);
+
+        if (clickedNumber === currentNumber) {
+            if (lastCorrectCell) {
+                lastCorrectCell.classList.remove('correct');
+            }
+            clickedCell.classList.add('correct');
+            lastCorrectCell = clickedCell;
+            currentNumber++;
+            messageElement.textContent = ''; // Clear previous message
+            messageElement.className = 'text-center'; // Reset message classes
+
+            if (currentNumber > currentGridSize * currentGridSize) {
+                endGame();
+            }
+        } else {
+            messageElement.textContent = `点错了！请找数字 ${currentNumber}`;
+            messageElement.className = 'text-center text-danger fw-bold'; // Use Bootstrap error color
+            if (navigator.vibrate) navigator.vibrate(100);
+            // Keep temporary background flash if desired
+            clickedCell.style.backgroundColor = '#f8d7da'; // Bootstrap danger light background
+            setTimeout(() => {
+                 if (!clickedCell.classList.contains('correct')) {
+                      clickedCell.style.backgroundColor = ''; // Revert to default (handled by CSS)
+                 }
+            }, 300);
+        }
+     }
+
+    function startTimer() { /* ... no change ... */
+        startTime = Date.now();
+        timerElement.textContent = `时间: 0.00 秒`;
+        timerInterval = setInterval(() => {
+            const elapsedTime = (Date.now() - startTime) / 1000;
+            timerElement.textContent = `时间: ${elapsedTime.toFixed(2)} 秒`;
+        }, 100);
+     }
+
+    function stopTimer() { /* ... no change ... */
+        clearInterval(timerInterval);
+        timerInterval = null;
+     }
+
+    function startGame() { /* ... no change in logic ... */
+        if (gameActive) return;
+        gameActive = true;
+        currentNumber = 1;
+        currentGridSize = parseInt(sizeSelect.value, 10);
+        lastCorrectCell = null;
+
+        createGrid(currentGridSize);
+        startTimer();
+
+        startBtn.disabled = true;
+        resetBtn.disabled = false;
+        sizeSelect.disabled = true;
+        messageElement.textContent = `游戏开始！请按顺序点击数字 1 到 ${currentGridSize * currentGridSize}`;
+        messageElement.className = 'text-center text-info'; // Use Bootstrap info color for start message
+     }
+
+    function endGame() { /* ... Minor change for message class ... */
+        gameActive = false;
+        stopTimer();
+        const finalTime = (Date.now() - startTime) / 1000;
+        const resultMessage = `🎉 恭喜！完成${currentGridSize}x${currentGridSize} 用时: ${finalTime.toFixed(2)} 秒！🎉`;
+
+        messageElement.textContent = resultMessage;
+        messageElement.className = 'text-center text-success fw-bold'; // Use Bootstrap success color
+
+        alert(resultMessage); // Keep alert
+        saveRecord({ size: currentGridSize, time: finalTime });
+
+        if (lastCorrectCell) {
+             lastCorrectCell.classList.remove('correct');
+        }
+
+        const cells = gridElement.querySelectorAll('.grid-cell');
+        cells.forEach(cell => {
+            cell.style.cursor = 'default';
+            const new_element = cell.cloneNode(true);
+            cell.parentNode.replaceChild(new_element, cell);
+        });
+     }
+
+    function resetGame() { /* ... Minor change for message class ... */
+        gameActive = false;
+        stopTimer();
+        currentNumber = 1;
+        currentGridSize = 0;
+        lastCorrectCell = null;
+        timerElement.textContent = '时间: 0.00 秒';
+        gridElement.innerHTML = ''; // Clear grid content
+        gridElement.style.display = 'none'; // Hide grid container
+        // Re-insert placeholder if it was removed
+        if (!gridElement.querySelector('#grid-placeholder')) {
+             const placeholder = document.createElement('div');
+             placeholder.id = 'grid-placeholder';
+             placeholder.textContent = '请选择难度并点击“开始游戏”';
+             placeholder.style = 'color: #6c757d; padding: 20px; text-align: center; font-style: italic; grid-column: 1 / -1;';
+             gridElement.appendChild(placeholder);
+        }
+        // Show placeholder by making grid container visible (placeholder is inside)
+        // Or better: manage placeholder visibility separately if grid is always present
+         if(gridPlaceholder) gridPlaceholder.style.display = 'block'; // Show placeholder if reference exists
+         else { // Fallback if reference is lost
+             gridElement.style.display = 'block'; // Show grid container anyway
+             gridElement.innerHTML = '<div id="grid-placeholder" style="color: #6c757d; padding: 20px; text-align: center; font-style: italic; grid-column: 1 / -1;">请选择难度并点击“开始游戏”</div>';
+         }
+
+
+        messageElement.textContent = '';
+        messageElement.className = 'text-center'; // Reset message classes
+        startBtn.disabled = false;
+        resetBtn.disabled = true;
+        sizeSelect.disabled = false;
+     }
+
+    // --- Record Functions (Change displayRecords for Bootstrap list group) ---
+
+    function loadRecords() { /* ... no change ... */
+        const recordsJson = localStorage.getItem(RECORDS_KEY);
+        try {
+            const records = JSON.parse(recordsJson);
+            return Array.isArray(records) ? records : [];
+        } catch (e) { return []; }
+     }
+
+    function saveRecord(newRecord) { /* ... no change ... */
+        const records = loadRecords();
+        records.unshift(newRecord);
+        if (records.length > MAX_RECORDS) {
+            records.length = MAX_RECORDS;
+        }
+        localStorage.setItem(RECORDS_KEY, JSON.stringify(records));
+        displayRecords(records);
+     }
+
+    function displayRecords(records) {
+        recordListElement.innerHTML = ''; // Clear existing items
+        if (records.length === 0) {
+            // Use Bootstrap classes for the 'no records' item
+            recordListElement.innerHTML = '<li class="list-group-item" id="no-records">暂无记录</li>';
+        } else {
+            const totalRecords = records.length;
+            records.forEach((record, index) => {
+                const li = document.createElement('li');
+                // Add Bootstrap list group item class
+                li.classList.add('list-group-item');
+                const displayIndex = totalRecords - index;
+                li.innerHTML = `
+                    第${displayIndex}次&nbsp;&nbsp;&nbsp;${record.size}x${record.size}方格
+                    <span class="record-time">${record.time.toFixed(2)} 秒</span>
+                `;
+                recordListElement.appendChild(li);
+            });
+        }
+    }
+
+    // --- Event Listeners (no change) ---
+    startBtn.addEventListener('click', startGame);
+    resetBtn.addEventListener('click', resetGame);
+
+    // --- Initialization (no change) ---
+    resetGame();
+    displayRecords(loadRecords());
+
+</script>
+
+</body>
+</html>
