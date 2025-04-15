@@ -162,12 +162,23 @@
         </div>
 
         <div class="col-lg-5 col-md-8">
-             <div class="card shadow-sm">
+            <div class="card shadow-sm">
                 <div class="card-body">
                     <h2 class="card-title text-center h5 mb-3">训练记录</h2>
-                    <ul class="list-group list-group-flush" id="record-list">
-                        <li class="list-group-item" id="no-records">暂无记录</li>
-                    </ul>
+                    <div class="d-flex justify-content-center gap-2 mb-3">
+                        <button class="btn btn-info btn-sm" id="show-stats-btn">显示统计信息</button>
+                        <button class="btn btn-secondary btn-sm" id="show-chart-btn">显示折线统计图</button>
+                        <!-- 新增：清空历史记录按钮 -->
+                        <button class="btn btn-warning btn-sm" id="clear-records-btn">清空历史记录</button>
+                    </div>
+                    <div id="record-list-container">
+                        <ul class="list-group list-group-flush" id="record-list">
+                            <li class="list-group-item" id="no-records">暂无记录</li>
+                        </ul>
+                    </div>
+                    <div id="chart-container" style="display: none;">
+                        <canvas id="myChart"></canvas>
+                    </div>
                 </div>
             </div>
         </div>
@@ -192,7 +203,7 @@
     let gameActive = false;
     let currentGridSize = 0;
     let lastCorrectCell = null;
-    const MAX_RECORDS = 15;
+    const MAX_RECORDS = 30;
     const RECORDS_KEY = 'schulteRecords';
 
     // --- Functions (Minimal changes needed, mainly message classes) ---
@@ -412,6 +423,50 @@
     resetGame();
     displayRecords(loadRecords());
 
+    // 新增：清空历史记录的函数
+    function clearRecords() {
+        if (confirm('确定要清空历史记录吗？')) {
+            localStorage.removeItem('schulteRecords');
+            location.reload(); // 刷新页面以更新图表
+        }
+    }
+
+    // 新增：绑定清空历史记录按钮的点击事件
+    document.getElementById('clear-records-btn').addEventListener('click', clearRecords);
+
+</script>
+<script src="../js/chart.js"></script>
+<script type="module">
+    import { createLineChart } from '../js/huitu.js';
+
+    const showStatsBtn = document.getElementById('show-stats-btn');
+    const showChartBtn = document.getElementById('show-chart-btn');
+    const recordListContainer = document.getElementById('record-list-container');
+    const chartContainer = document.getElementById('chart-container');
+
+    // 切换到统计信息
+    showStatsBtn.addEventListener('click', () => {
+        recordListContainer.style.display = 'block';
+        chartContainer.style.display = 'none';
+    });
+
+    // 切换到折线图
+    showChartBtn.addEventListener('click', () => {
+        recordListContainer.style.display = 'none';
+        chartContainer.style.display = 'block';
+
+        // 获取记录数据并绘制多条折线图
+        const records = loadRecords();
+
+        // 将记录转换为多条折线的数据格式
+        const schulteRecords = [
+            {
+                times: records.map(record => record.time) // 使用所有记录的时间作为一条折线
+            }
+        ];
+
+        createLineChart('myChart', schulteRecords, "训练完成时间(S)");
+    });
 </script>
 
 </body>

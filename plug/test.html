@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>存储演示</title>
+</head>
+<body>
+    <h1>存储演示</h1>
+
+    <label for="username">用户名：</label>
+    <input type="text" id="username">
+    <button onclick="saveUsername()">保存用户名 (LocalStorage)</button>
+    <p id="localUsername"></p>
+
+    <br>
+    <script>
+        // LocalStorage
+        function saveUsername() {
+            let username = document.getElementById('username').value;
+            localStorage.setItem('username', username);
+            document.getElementById('localUsername').textContent = '已保存的用户名：' + localStorage.getItem('username');
+        }
+    </script>
+</body>
+</html>
+
+
+

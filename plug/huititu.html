@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>折线图示例</title>
+    <script src="../js/chart.js"></script>
+    <script type="module">
+        import { createLineChart } from '../js/huitu.js';
+
+        const loadRecords = () => {
+            const recordsJson = localStorage.getItem('schulteRecords');
+            try {
+                const records = JSON.parse(recordsJson);
+                return Array.isArray(records) ? records : [];
+            } catch (e) { return []; }
+        };
+
+        // 新增：清空历史记录的函数
+        const clearRecords = () => {
+            if (confirm('确定要清空历史记录吗？')) {
+                localStorage.removeItem('schulteRecords');
+                location.reload(); // 刷新页面以更新图表
+            }
+        };
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const records = loadRecords();
+            const schulteRecords = [{ times: records.map(record => record.time) }];
+            createLineChart('myChart', schulteRecords, "完成时间(S)");
+        });
+    </script>
+</head>
+<body>
+    <div id="chart-container">
+        <canvas id="myChart"></canvas>
+    </div>
+    <!-- 新增：清空历史记录按钮 -->
+    <button onclick="clearRecords()">清空历史记录</button>
+</body>
+</html>
