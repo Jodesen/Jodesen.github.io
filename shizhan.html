@@ -282,84 +282,84 @@
   }
 
   function checkAnswers() {
-   var endTime = new Date().getTime(); // 记录结束时间
-   var timeElapsed = (endTime - startTime) / 1000; // 计算已用时间（秒）
-   correctAnswersCount = 0; // 重置正确答案计数器
+    var endTime = new Date().getTime(); // 记录结束时间
+    var timeElapsed = (endTime - startTime) / 1000; // 计算已用时间（秒）
+    correctAnswersCount = 0; // 重置正确答案计数器
 
-   for (var i = 1; i <= 20; i++) {
-    var selectedOption = checkedOptions[i];
-    // 从 correctOptionIndices 对象中获取当前问题的正确答案索引
-    var correctOptionIndex = correctOptionIndices[i];
-    var questionDiv = document.getElementById(`question${i}`);
-    // 根据正确的索引构建正确的 radio button 的 ID
-    var correctInputId = `option${i}${correctOptionIndex}`;
-    var correctInput = document.getElementById(correctInputId);
-    var correctLabel = correctInput ? correctInput.nextElementSibling : null;
+    for (var i = 1; i <= 20; i++) {
+        var selectedOption = checkedOptions[i];
+        var correctOptionIndex = correctOptionIndices[i];
+        var questionDiv = document.getElementById(`question${i}`);
+        var correctInputId = `option${i}${correctOptionIndex}`;
+        var correctInput = document.getElementById(correctInputId);
+        var correctLabel = correctInput ? correctInput.nextElementSibling : null;
 
-    // 获取当前选中的选项的 label 元素
-    var selectedLabel = null;
-    var selectedInput = null;
-    if (selectedOption !== undefined) {
-     var selectedInputId = `option${i}${selectedOption}`;
-     selectedInput = document.getElementById(selectedInputId);
-     selectedLabel = selectedInput ? selectedInput.nextElementSibling : null;
+        var selectedLabel = null;
+        var selectedInput = null;
+        if (selectedOption !== undefined) {
+            var selectedInputId = `option${i}${selectedOption}`;
+            selectedInput = document.getElementById(selectedInputId);
+            selectedLabel = selectedInput ? selectedInput.nextElementSibling : null;
+        }
+
+        if (selectedOption !== undefined && parseInt(selectedOption) === correctOptionIndex) {
+            questionDiv.classList.remove("incorrect");
+            questionDiv.classList.add("correct");
+            correctAnswersCount++; // 增加正确答案的数量
+            if (correctLabel) {
+                correctLabel.style.backgroundColor = "green"; // 正确答案标绿
+                correctLabel.style.color = "white"; // 正确答案字体颜色改为白色
+                if (selectedLabel) {
+                    selectedLabel.style.color = "white"; // 如果答案正确，选中项字体也变白
+                }
+            }
+        } else {
+            questionDiv.classList.remove("correct");
+
+            // 标记用户选择的错误答案
+            if (selectedOption !== undefined && selectedLabel) {
+                selectedLabel.style.backgroundColor = "red";
+                selectedLabel.style.color = "white";
+            }
+
+            // 勾选出正确答案选项并标绿
+            if (correctInput && correctLabel) {
+                correctInput.checked = true;
+                correctLabel.style.backgroundColor = "green";
+                correctLabel.style.color = "white"; // 将正确选项的字体颜色改为白色，更醒目
+            }
+
+            // 添加“选错”或“未作答”的标记
+            const indicatorDiv = document.createElement('div');
+            indicatorDiv.classList.add(selectedOption === undefined ? 'unanswered' : 'incorrect-answer');
+            indicatorDiv.textContent = selectedOption === undefined ? '未作答' : '错误'; // 恢复显示“选错”文字
+            questionDiv.appendChild(indicatorDiv);
+        }
+
+        // 禁用选项
+        document.querySelectorAll(`input[name="options${i}"]`).forEach(option => option.disabled = true);
     }
 
-    if (selectedOption !== undefined && parseInt(selectedOption) === correctOptionIndex) {
-     questionDiv.classList.remove("incorrect");
-     questionDiv.classList.add("correct");
-     correctAnswersCount++; // 增加正确答案的数量
-     if (correctLabel) {
-      correctLabel.style.backgroundColor = "green"; // 正确答案标绿
-      correctLabel.style.color = "white"; // 正确答案字体颜色改为白色
-      if (selectedLabel) {
-       selectedLabel.style.color = "white"; // 如果答案正确，选中项字体也变白
-      }
-     }
+    const accuracy = (correctAnswersCount / 20) * 100;
+    const timeInSeconds = timeElapsed.toFixed(2);
+
+    let level;
+    if (timeInSeconds <= 240 && accuracy === 100) {
+        level = "优秀";
+    } else if (timeInSeconds <= 300 && accuracy === 100) {
+        level = "良好";
+    } else if (accuracy === 100) {
+        level = "及格";
     } else {
-     questionDiv.classList.remove("correct");
-
-     // 标记用户选择的错误答案
-     if (selectedOption !== undefined && selectedLabel) {
-      selectedLabel.style.backgroundColor = "red";
-      selectedLabel.style.color = "white";
-     }
-
-     // 勾选出正确答案选项并标绿
-     if (correctInput && correctLabel) {
-      correctInput.checked = true;
-      correctLabel.style.backgroundColor = "green";
-      correctLabel.style.color = "white"; // 将正确选项的字体颜色改为白色，更醒目
-     }
-
-     // 添加“选错”或“未作答”的标记
-     const indicatorDiv = document.createElement('div');
-     indicatorDiv.classList.add(selectedOption === undefined ? 'unanswered' : 'incorrect-answer');
-     indicatorDiv.textContent = selectedOption === undefined ? '未作答' : '错误'; // 恢复显示“选错”文字
-     questionDiv.appendChild(indicatorDiv);
+        level = "不及格";
     }
 
-    // 禁用选项
-    document.querySelectorAll(`input[name="options${i}"]`).forEach(option => option.disabled = true);
-   }
+    document.getElementById("timer").textContent = `用时：${timeInSeconds} 秒，正确率：${accuracy.toFixed(2)}%，级别：${level}`;
+    document.getElementById("checkButton").disabled = true; // 检查后禁用按钮
 
-   const accuracy = (correctAnswersCount / 20) * 100;
-   const timeInSeconds = timeElapsed.toFixed(2);
-
-   let level;
-   if (timeInSeconds <= 240 && accuracy === 100) {
-     level = "优秀";
-   } else if (timeInSeconds <= 300 && accuracy === 100) {
-     level = "良好";
-   } else if (accuracy === 100) {
-     level = "及格";
-   } else {
-     level = "不及格";
-   }
-
-   document.getElementById("timer").textContent = `用时：${timeInSeconds} 秒，正确率：${accuracy.toFixed(2)}%，级别：${level}`;
-   document.getElementById("checkButton").disabled = true; // 检查后禁用按钮
- }
+    // 显示生成题目按钮
+    document.querySelector('button[onclick="generateQuestions()"]').style.display = "block";
+}
 </script>
 </body>
 </html>

@@ -386,7 +386,7 @@
 
     function saveRecord(newRecord) { /* ... no change ... */
         const records = loadRecords();
-        records.unshift(newRecord);
+        records.push(newRecord);
         if (records.length > MAX_RECORDS) {
             records.length = MAX_RECORDS;
         }
@@ -400,12 +400,12 @@
             // Use Bootstrap classes for the 'no records' item
             recordListElement.innerHTML = '<li class="list-group-item" id="no-records">暂无记录</li>';
         } else {
-            const totalRecords = records.length;
             records.forEach((record, index) => {
                 const li = document.createElement('li');
                 // Add Bootstrap list group item class
                 li.classList.add('list-group-item');
-                const displayIndex = totalRecords - index;
+                // Fix: Use correct displayIndex to reflect the order
+                const displayIndex = index + 1; // Start from 1 and increment
                 li.innerHTML = `
                     第${displayIndex}次&nbsp;&nbsp;&nbsp;${record.size}x${record.size}方格
                     <span class="record-time">${record.time.toFixed(2)} 秒</span>

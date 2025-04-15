@@ -240,51 +240,43 @@
     var practiceCount = 0;
 
     function generateProblems() {
-      clearCorrectAnswers(); // Clear previous results
-      practiceCount++; // Increment practice counter
-      startTime = Date.now(); // Record start time
+      clearCorrectAnswers();
+      practiceCount++;
+      startTime = Date.now();
 
-      // --- Get selected number of problems ---
       const numToGenerate = parseInt(document.getElementById('numProblemsSelect').value);
-      // ---
 
       var problemsTable = document.getElementById("problemTable");
       var tbody = problemsTable.querySelector("tbody");
 
-      // Ensure tbody exists, create if not
       if (!tbody) {
           tbody = document.createElement("tbody");
           problemsTable.appendChild(tbody);
       }
-      tbody.innerHTML = ''; // Clear previous problems from tbody
+      tbody.innerHTML = ''; // Clear previous problems
 
-      // --- Generate 'numToGenerate' problems ---
       for (var i = 0; i < numToGenerate; i++) {
-          var num1 = Math.floor(Math.random() * 90000) + 10000; // 5-digit number
-          var num2 = Math.floor(Math.random() * 90) + 10;   // 2-digit number
-          var result = Math.floor(num1 / num2);             // Integer division result
-          var firstDigit = result.toString().charAt(0);     // First digit of the result
+          var num1 = Math.floor(Math.random() * 90000) + 10000;
+          var num2 = Math.floor(Math.random() * 90) + 10;
+          var result = Math.floor(num1 / num2);
+          var firstDigit = result.toString().charAt(0);
 
-          var newRow = tbody.insertRow(); // Create a new row for each problem
-          var cell = newRow.insertCell(); // Create a cell in the row
+          var newRow = tbody.insertRow();
+          var cell = newRow.insertCell();
 
-          // Create and add the text part of the problem
-          const problemText = document.createTextNode(`${i + 1}. ${num1} ÷ ${num2} = `); // Add problem number
+          const problemText = document.createTextNode(`${i + 1}. ${num1} ÷ ${num2} = `);
           cell.appendChild(problemText);
 
-          // Create the input element
           const inputElement = document.createElement("input");
           inputElement.type = "number";
-          inputElement.dataset.answer = firstDigit; // Store correct first digit in data attribute
-          inputElement.classList.add("input");     // Add class for styling/selection
-          inputElement.setAttribute("aria-label", `Answer for problem ${i + 1}`); // Accessibility
+          inputElement.dataset.answer = firstDigit;
+          inputElement.classList.add("input");
+          inputElement.setAttribute("aria-label", `Answer for problem ${i + 1}`);
 
-          // Add the input element to the cell
           cell.appendChild(inputElement);
       }
 
-       problemsTable.style.display = "table"; // Use 'table' display for proper rendering
-
+      problemsTable.style.display = "table";
 
       var inputs = document.querySelectorAll('.input');
       inputs.forEach(input => {
@@ -293,23 +285,22 @@
           input.value = "";
       });
 
-       // Optional: Focus the first input field
-       if (inputs.length > 0) {
-           inputs[0].focus();
-       }
-           // --- 添加验证答案按钮并放置在 instructions 标签前面 ---
-    var problemTableContainer = document.getElementById("problemTableContainer");
-    var instructionsElement = document.getElementById("instructions");
-    var verifyButton = document.createElement("button");
-    verifyButton.textContent = "验证答案";
-    verifyButton.onclick = verifyAnswers;
+      if (inputs.length > 0) {
+          inputs[0].focus();
+      }
 
-    // 获取 problemTableContainer 的父元素
-    var parentElement = problemTableContainer.parentNode;
+      // 检查是否已存在“验证答案”按钮
+      var verifyButton = document.querySelector("#problemTableContainer + button");
+      if (!verifyButton) {
+          var problemTableContainer = document.getElementById("problemTableContainer");
+          var instructionsElement = document.getElementById("instructions");
+          verifyButton = document.createElement("button");
+          verifyButton.textContent = "验证答案";
+          verifyButton.onclick = verifyAnswers;
 
-    // 在 instructionsElement 之前插入 verifyButton
-    parentElement.insertBefore(verifyButton, instructionsElement);
-    // ---
+          var parentElement = problemTableContainer.parentNode;
+          parentElement.insertBefore(verifyButton, instructionsElement);
+      }
     }
 
     function verifyAnswers() {
